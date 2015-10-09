@@ -47,7 +47,10 @@ var battleState = function(game) {};
         //var player; //sprite
 
         preload: function() {
-            //DO SOMETHING
+            this.game.load.image("ui-ActionPanel", "assets/ui/ui-action-panel.png");
+
+            this.game.load.image("ui-PlayerPanel", "assets/ui/ui-player-panel.png");
+            this.game.load.image("ui-PlayerPortrait", "assets/ui/ui-player-portrait.png");
         },
         create: function() {
             console.log("Starting Battle");
@@ -55,22 +58,27 @@ var battleState = function(game) {};
             var bgSky, bgGround;
 
             bgSky = this.game.add.sprite(0, 0, "background-Sky");
+            bgSky.width = 1080;
             bgGround = this.game.add.graphics(0, 0);
             bgGround.beginFill(0x5a3c18, 0.9);
-            bgGround.drawRect(0, 200, 800, 400);
+            bgGround.drawRect(0, 200, 1080, 400);
             bgGround.endFill();
 
             //TODO: remove this
-            this.txtTitle = this.game.add.text(400, 70, 'Battle screen', { fill: '#ffffff', stroke: '#181818' });
+            this.txtTitle = this.game.add.text(540, 70, 'Battle screen', {
+                fill: '#ffffff',
+                stroke: '#181818',
+                strokeThickness: 5
+            });
             this.txtTitle.font = 'Topaz';
             this.txtTitle.fontSize = 50;
-            this.txtTitle.strokeThickness = 5;
             this.txtTitle.anchor.setTo(0.5, 0.5);
             //DO SOMETHING
 
             this.setupMonsters(["MudGolem", "BlackSpider", "RedSlime", "Goblin"]);
 
-            console.log(this.monsters);
+            this.setupActionPanel();
+            this.setupPlayerPanel();
         },
         setupMonsters: function(monsterTypes) {
             console.log("creating monsters of type: " + monsterTypes.join(', '));
@@ -106,24 +114,51 @@ var battleState = function(game) {};
             //position sprites
             switch (this.monsterSprites.length) {
                 case 1:
-                    this.monsterSprites.getAt(0).position.setTo(400 + (Math.random()*2*positionVariationX)-positionVariationX, (Math.random()*2*positionVariationY)-positionVariationY);
+                    this.monsterSprites.getAt(0).position.setTo(540 + (Math.random()*2*positionVariationX)-positionVariationX, (Math.random()*2*positionVariationY)-positionVariationY);
                     break;
                 case 2:
-                    this.monsterSprites.getAt(0).position.setTo(250 + (Math.random()*2*positionVariationX)-positionVariationX, (Math.random()*2*positionVariationY)-positionVariationY);
+                    this.monsterSprites.getAt(0).position.setTo(390 + (Math.random()*2*positionVariationX)-positionVariationX, (Math.random()*2*positionVariationY)-positionVariationY);
                     this.monsterSprites.getAt(1).position.setTo(550 + (Math.random()*2*positionVariationX)-positionVariationX, (Math.random()*2*positionVariationY)-positionVariationY);
                     break;
                 case 3:
-                    this.monsterSprites.getAt(0).position.setTo(150 + (Math.random()*2*positionVariationX)-positionVariationX, (Math.random()*2*positionVariationY)-positionVariationY);
-                    this.monsterSprites.getAt(1).position.setTo(400 + (Math.random()*2*positionVariationX)-positionVariationX, (Math.random()*2*positionVariationY)-positionVariationY);
-                    this.monsterSprites.getAt(2).position.setTo(650 + (Math.random()*2*positionVariationX)-positionVariationX, (Math.random()*2*positionVariationY)-positionVariationY);
+                    this.monsterSprites.getAt(0).position.setTo(290 + (Math.random()*2*positionVariationX)-positionVariationX, (Math.random()*2*positionVariationY)-positionVariationY);
+                    this.monsterSprites.getAt(1).position.setTo(540 + (Math.random()*2*positionVariationX)-positionVariationX, (Math.random()*2*positionVariationY)-positionVariationY);
+                    this.monsterSprites.getAt(2).position.setTo(790 + (Math.random()*2*positionVariationX)-positionVariationX, (Math.random()*2*positionVariationY)-positionVariationY);
                     break;
                 case 4:
-                    this.monsterSprites.getAt(0).position.setTo(125.00 + (Math.random()*2*positionVariationX)-positionVariationX, (Math.random()*2*positionVariationY)-positionVariationY);
-                    this.monsterSprites.getAt(1).position.setTo(308.33 + (Math.random()*2*positionVariationX)-positionVariationX, (Math.random()*2*positionVariationY)-positionVariationY);
-                    this.monsterSprites.getAt(2).position.setTo(491.67 + (Math.random()*2*positionVariationX)-positionVariationX, (Math.random()*2*positionVariationY)-positionVariationY);
-                    this.monsterSprites.getAt(3).position.setTo(675.00 + (Math.random()*2*positionVariationX)-positionVariationX, (Math.random()*2*positionVariationY)-positionVariationY);
+                    this.monsterSprites.getAt(0).position.setTo(265.00 + (Math.random()*2*positionVariationX)-positionVariationX, (Math.random()*2*positionVariationY)-positionVariationY);
+                    this.monsterSprites.getAt(1).position.setTo(448.33 + (Math.random()*2*positionVariationX)-positionVariationX, (Math.random()*2*positionVariationY)-positionVariationY);
+                    this.monsterSprites.getAt(2).position.setTo(631.67 + (Math.random()*2*positionVariationX)-positionVariationX, (Math.random()*2*positionVariationY)-positionVariationY);
+                    this.monsterSprites.getAt(3).position.setTo(815.00 + (Math.random()*2*positionVariationX)-positionVariationX, (Math.random()*2*positionVariationY)-positionVariationY);
                     break;
             }
+        },
+        setupActionPanel: function() {
+            var panelBack;
+
+            this.actionPanel = this.game.add.group();
+            this.actionPanel.position.setTo(140, 300);
+
+            panelBack = this.actionPanel.create(0, 0, "ui-ActionPanel");
+        },
+        setupPlayerPanel: function() {
+            var panelBack, portrait, txtHp;
+
+            this.playerPanel = this.game.add.group();
+            this.playerPanel.position.setTo(640, 300);
+
+            panelBack = this.playerPanel.create(0, 0, "ui-PlayerPanel");
+            portrait = this.playerPanel.create(30, 30, "ui-PlayerPortrait");
+            portrait.scale.setTo(1.5, 1.5);
+
+            txtHp = this.game.add.text(115, 30, 'HP:', {
+                fill: '#ffffff',
+                stroke: '#181818',
+                strokeThickness: 5
+            });
+            txtHp.font = 'Topaz';
+            txtHp.fontSize = 30;
+            this.playerPanel.add(txtHp);
         }
     };
 

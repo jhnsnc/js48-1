@@ -3,6 +3,7 @@ var preloadState = function(game) {};
 preloadState.prototype = {
     preload: function() {
         this.game.load.image("background-Sky", "assets/sky.png");
+
         this.game.load.spritesheet("monster-Goblin", "assets/monsters/goblin_sprite.png", 48, 48);
         this.game.load.spritesheet("monster-MudGolem", "assets/monsters/golem_mud_sprite.png", 48, 48);
         this.game.load.spritesheet("monster-Pixie", "assets/monsters/pixie_a_sprite.png", 48, 48);
