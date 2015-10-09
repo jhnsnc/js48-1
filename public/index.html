@@ -1,0 +1,43 @@
+<!doctype html> 
+<html lang="en"> 
+<head> 
+    <meta charset="UTF-8" />
+    <title>Phaser - Making your first game, part 9</title>
+    <style type="text/css">
+        body {
+            margin: 0;
+        }
+        @font-face {
+            font-family: 'Topaz';
+            src: url('fonts/topaz.ttf');
+        }
+    </style>
+    <!-- libraries -->
+    <script type="text/javascript" src="js/lib/phaser.min.js"></script>
+    <script type="text/javascript" src="js/lib/lodash.min.js"></script>
+    <!-- game states -->
+    <script type="text/javascript" src="js/states/boot.js"></script>
+    <script type="text/javascript" src="js/states/preload.js"></script>
+    <script type="text/javascript" src="js/states/title.js"></script>
+    <script type="text/javascript" src="js/states/battle.js"></script>
+</head>
+<body>
+
+    <script type="text/javascript">
+        (function() {
+            var game = new Phaser.Game(800, 600, Phaser.AUTO, "game", null, false, false);
+
+            game.state.add("Boot", bootState);
+            game.state.add("Preload", preloadState);
+            game.state.add("Title", titleState);
+            game.state.add("Battle", battleState);
+
+            game.state.start("Boot");
+
+        })();
+    </script>
+
+    <h1 style="font-family: 'Topaz'; position: fixed; z-index: -10; left: 50%;">Game</h1> <!-- HACK: to make the webfont load -->
+
+</body>
+</html>
