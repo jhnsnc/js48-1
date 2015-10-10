@@ -15,6 +15,9 @@
     <!-- libraries -->
     <script type="text/javascript" src="js/lib/phaser.min.js"></script>
     <script type="text/javascript" src="js/lib/lodash.min.js"></script>
+    <!-- misc -->
+    <script type="text/javascript" src="js/utils.js"></script>
+    <script type="text/javascript" src="js/player.js"></script>
     <!-- game states -->
     <script type="text/javascript" src="js/states/boot.js"></script>
     <script type="text/javascript" src="js/states/preload.js"></script>
@@ -25,19 +28,20 @@
 
     <script type="text/javascript">
         (function() {
-            var game = new Phaser.Game(1080, 600, Phaser.AUTO, "game", null, false, false);
+            var game = new Phaser.Game(1080, 600, Phaser.AUTO, "game", {create: init}, false, false);
 
-            game.state.add("Boot", bootState);
-            game.state.add("Preload", preloadState);
-            game.state.add("Title", titleState);
-            game.state.add("Battle", battleState);
+            function init() {
+                game.state.add("Boot", bootState);
+                game.state.add("Preload", preloadState);
+                game.state.add("Title", titleState);
+                game.state.add("Battle", battleState);
 
-            game.state.start("Boot");
-
+                game.state.start("Boot");
+            }
         })();
     </script>
 
-    <h1 style="font-family: 'Topaz'; position: fixed; z-index: -10; left: 50%;">Game</h1> <!-- HACK: to make the webfont load -->
+    <h1 style="font-family: 'Topaz'; position: fixed; z-index: -10; left: 50%; top: 30%; color: red; font-size: 100px;">HACK</h1> <!-- HACK: to make the webfont load -->
 
 </body>
 </html>
