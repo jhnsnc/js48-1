@@ -104,7 +104,7 @@ var battleState = function(game) {};
 
                     //clone data, assign additional values
                     monster = _.clone(MONSTER_DATA[monsterTypes[i]]);
-                    monster.currentHP = monster.maxHP;
+                    this.assignLevelAppropriateMonsterStats(monster, Math.floor(Math.random()*4+1) /* monster level */);
                     monster.sprite = sprite;
 
                     this.monsters.push(monster);
@@ -132,6 +132,23 @@ var battleState = function(game) {};
                     this.monsters[3].sprite.position.setTo(815.00 + (Math.random()*2*positionVariationX)-positionVariationX, (Math.random()*2*positionVariationY)-positionVariationY);
                     break;
             }
+        },
+        assignLevelAppropriateMonsterStats: function(monsterData, level) {
+            level = Math.round(level);
+            monsterData.level = level;
+            //hp
+            monsterData.maxHP = monsterData.hpBase + (monsterData.hpGrowth * level);
+            monsterData.currentHP = monsterData.maxHP;
+            //armor
+            monsterData.armor = monsterData.armorBase + (monsterData.armorGrowth * level);
+            monsterData.armorMod = 0;
+            //resist
+            monsterData.resist = monsterData.resistBase + (monsterData.resistGrowth * level);
+            monsterData.resistMod = 0;
+            //damage
+            monsterData.damage = monsterData.damageBase + (monsterData.damageGrowth * level);
+            //special
+            monsterData.turnDebt = 0;
         },
         setupActionsPanel: function() {
             var panelBack;
@@ -299,7 +316,7 @@ var battleState = function(game) {};
 
             //add monster details subgroup
             this.inspectMonsterDetails = this.game.add.group();
-            this.inspectMonsterDetails.position.setTo(30 + 60, 90 + 20);
+            this.inspectMonsterDetails.position.setTo(30, 90);
             this.inspectPanel.add(this.inspectMonsterDetails);
 
             //hidden by default
@@ -450,7 +467,8 @@ var battleState = function(game) {};
 
             if (typeof targetMonsterData !== "undefined") {
                 var monsterPortrait;
-                var txtHP, txtStrength, txtArmor;
+                var txtHP, txtArmor, txtResist, txtDamage, text;
+                var txtDrops, dropPrimary, dropSecondary, dropBonus;
 
                 //create monster portrait
                 monsterPortrait = this.inspectMonsterDetails.create(0, 10, targetMonsterData.spriteName);
@@ -462,21 +480,56 @@ var battleState = function(game) {};
                     text: 'HP: ' + targetMonsterData.currentHP + '/' + targetMonsterData.maxHP,
                     fontSize: 30
                 }, this);
-                txtStrength = createGameText({
-                    x: 110, y: 40,
-                    text: 'Strength: ' + targetMonsterData.strength,
-                    fontSize: 30
-                }, this);
+
+                text = 'Armor: ' + targetMonsterData.armor;
+                if (targetMonsterData.armorMod > 0) {
+                    text += ' (+'+Number(targetMonsterData.armorMod).toFixed(1)+')';
+                } else if (targetMonsterData.armorMod < 0) {
+                    text += ' (-'+Number(Math.abs(targetMonsterData.armorMod)).toFixed(1)+')';
+                }
                 txtArmor = createGameText({
-                    x: 110, y: 80,
-                    text: 'Armor: ' + targetMonsterData.armor,
+                    x: 110, y: 40,
+                    text: text,
                     fontSize: 30
                 }, this);
 
+                text = 'Resist: ' + targetMonsterData.resist;
+                if (targetMonsterData.resistMod > 0) {
+                    text += ' (+'+Number(targetMonsterData.resistMod).toFixed(1)+')';
+                } else if (targetMonsterData.resistMod < 0) {
+                    text += ' (-'+Number(Math.abs(targetMonsterData.resistMod)).toFixed(1)+')';
+                }
+                txtResist = createGameText({
+                    x: 110, y: 80,
+                    text: text,
+                    fontSize: 30
+                }, this);
+
+                text = ((targetMonsterData.damageType === "phsyical") ? 'Might: ' : 'Magic: ') + targetMonsterData.damage;
+                txtDamage = createGameText({
+                    x: 110, y: 120,
+                    text: text,
+                    fontSize: 30
+                }, this);
+
+                txtDrops = createGameText({
+                    x: 300, y: 0,
+                    text: "Drops:",
+                    fontSize: 30
+                }, this);
+                dropPrimary = this.inspectMonsterDetails.create(305, 25, _.result(_.findWhere(INGREDIENTS_DATA, {id: targetMonsterData.dropPrimary}), 'spriteName'));
+                dropPrimary.scale.setTo(2.0, 2.0);
+                dropSecondary = this.inspectMonsterDetails.create(317, 110, _.result(_.findWhere(INGREDIENTS_DATA, {id: targetMonsterData.dropSecondary}), 'spriteName'));
+                dropSecondary.scale.setTo(1.5, 1.5);
+                dropBonus = this.inspectMonsterDetails.create(389, 122, _.result(_.findWhere(INGREDIENTS_DATA, {id: targetMonsterData.dropBonus}), 'spriteName'));
+                dropBonus.scale.setTo(1.0, 1.0);
+
                 //add to subgroup
                 this.inspectMonsterDetails.add(txtHP);
-                this.inspectMonsterDetails.add(txtStrength);
                 this.inspectMonsterDetails.add(txtArmor);
+                this.inspectMonsterDetails.add(txtResist);
+                this.inspectMonsterDetails.add(txtDamage);
+                this.inspectMonsterDetails.add(txtDrops);
             }
         }
     };
