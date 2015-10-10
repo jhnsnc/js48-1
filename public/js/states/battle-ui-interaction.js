@@ -1,47 +1,56 @@
 (function() {
     battleState.prototype.updatePlayerPanelDetails = function() {
         var text;
-        var txtHP, txtStrength, txtArmor;
+        var txtHP, txtLevel, txtArmor, txtResist;
 
         //HP
         text = "HP: " + player.currentHP + "/" + player.maxHP;
         txtHP = createGameText({
-            x: 85, y: 0,
+            x: 0, y: 200,
             text: text,
             fontSize: 30
         }, this);
 
-        //strength
-        text = "Strength: " + player.baseStrength;
-        if (player.tempStrenth > 0) {
-            text += " (+" + Math.abs(player.tempStrength) + ")";
-        } else if (player.tempStrenth < 0) {
-            text += " (-" + Math.abs(player.tempStrength) + ")";
-        }
-        txtStrength = createGameText({
-            x: 0, y: 85,
+        //level
+        text = "Level: " + player.level;
+        txtLevel = createGameText({
+            x: 85, y: 0,
             text: text,
-            fontSize: 30
+            fontSize: 25
         }, this);
 
         //armor
-        text = "Armor: " + player.baseArmor;
-        if (player.tempStrenth > 0) {
-            text += " (+" + Math.abs(player.tempArmor) + ")";
-        } else if (player.tempStrenth < 0) {
-            text += " (-" + Math.abs(player.tempArmor) + ")";
+        text = "Armor: " + player.armor;
+        if (player.armorMod > 0) {
+            text += " (+" + Math.round(Math.abs(player.armorMod)) + ")";
+        } else if (player.armorMod < 0) {
+            text += " (-" + Math.round(Math.abs(player.armorMod)) + ")";
         }
         txtArmor = createGameText({
-            x: 0, y: 125,
+            x: 0, y: 85,
             text: text,
-            fontSize: 30
+            fontSize: 25
+        }, this);
+
+        //resist
+        text = "Resist: " + player.resist;
+        if (player.resistMod > 0) {
+            text += " (+" + Math.round(Math.abs(player.resistMod)) + ")";
+        } else if (player.resistMod < 0) {
+            text += " (-" + Math.round(Math.abs(player.resistMod)) + ")";
+        }
+        txtResist = createGameText({
+            x: 0, y: 120,
+            text: text,
+            fontSize: 25
         }, this);
 
         //update details with new elements
         this.playerPanelDetails.removeAll();
         this.playerPanelDetails.add(txtHP);
-        this.playerPanelDetails.add(txtStrength);
+        this.playerPanelDetails.add(txtLevel);
         this.playerPanelDetails.add(txtArmor);
+        this.playerPanelDetails.add(txtResist);
     };
     battleState.prototype.handleScience = function(evt) {
         console.log("Player chose \"MAD SCIENCE!\" command");
@@ -292,33 +301,33 @@
 
             text = 'Armor: ' + targetMonsterData.armor;
             if (targetMonsterData.armorMod > 0) {
-                text += ' (+'+Number(targetMonsterData.armorMod).toFixed(1)+')';
+                text += ' (+'+Math.round(targetMonsterData.armorMod)+')';
             } else if (targetMonsterData.armorMod < 0) {
-                text += ' (-'+Number(Math.abs(targetMonsterData.armorMod)).toFixed(1)+')';
+                text += ' (-'+Math.round(Math.abs(targetMonsterData.armorMod))+')';
             }
             txtArmor = createGameText({
                 x: 110, y: 40,
                 text: text,
-                fontSize: 30
+                fontSize: 25
             }, this);
 
             text = 'Resist: ' + targetMonsterData.resist;
             if (targetMonsterData.resistMod > 0) {
-                text += ' (+'+Number(targetMonsterData.resistMod).toFixed(1)+')';
+                text += ' (+'+Math.round(targetMonsterData.resistMod)+')';
             } else if (targetMonsterData.resistMod < 0) {
-                text += ' (-'+Number(Math.abs(targetMonsterData.resistMod)).toFixed(1)+')';
+                text += ' (-'+Math.round(Math.abs(targetMonsterData.resistMod))+')';
             }
             txtResist = createGameText({
                 x: 110, y: 80,
                 text: text,
-                fontSize: 30
+                fontSize: 25
             }, this);
 
             text = ((targetMonsterData.damageType === "physical") ? 'Might: ' : 'Magic: ') + targetMonsterData.damage;
             txtDamage = createGameText({
                 x: 110, y: 120,
                 text: text,
-                fontSize: 30
+                fontSize: 25
             }, this);
 
             txtDrops = createGameText({
