@@ -50,7 +50,7 @@
     };
     battleState.prototype.setupScienceSelectPanel = function() {
         var panelBack;
-        var txtLabel;
+        var txtLabel, txtPrev, txtNext;
 
         this.scienceSelectPanel = this.game.add.group();
         this.scienceSelectPanel.position.setTo(140, 300);
@@ -61,17 +61,58 @@
         txtLabel = createGameText({
             x: 30, y: 30,
             text: 'Select reaction:',
-            fontSize: 35
+            fontSize: 25
         }, this);
         this.scienceSelectPanel.add(txtLabel);
 
-        //hide panel on click (and show actions panel)
-        panelBack.inputEnabled = true;
-        panelBack.input.useHandCursor = true;
-        panelBack.events.onInputDown.add(function dismissPanel(evt) {
+        //hide panel on label click (and show actions panel)
+        txtLabel.inputEnabled = true;
+        txtLabel.input.useHandCursor = true;
+        txtLabel.events.onInputDown.add(function dismissPanel(evt) {
             this.scienceSelectPanel.visible = false;
             this.actionsPanel.visible = true;
         }, this);
+
+        //pagination text
+        txtPrev = createGameText({
+            x: 315, y: 265,
+            text: '  <  ',
+            fontSize: 30
+        }, this);
+        txtPrev.anchor.setTo(1.0, 0.5);
+        txtPrev.inputEnabled = true;
+        txtPrev.input.useHandCursor = true;
+        txtPrev.events.onInputDown.add(function prevPage(evt) {
+            this.updateRecipeDetails("-=1");
+        }, this);
+
+        this.scienceSelectPageNum = 1;
+        this.scienceSelectPanel.add(txtPrev);
+        this.txtScienceSelectPageNum = createGameText({
+            x: 355, y: 265,
+            text: this.scienceSelectPageNum + '/5',
+            fontSize: 30
+        }, this);
+        this.txtScienceSelectPageNum.anchor.setTo(0.5, 0.5);
+        this.scienceSelectPanel.add(this.txtScienceSelectPageNum);
+
+        txtNext = createGameText({
+            x: 395, y: 265,
+            text: '  >  ',
+            fontSize: 30
+        }, this);
+        txtNext.anchor.setTo(0.0, 0.5);
+        this.scienceSelectPanel.add(txtNext);
+        txtNext.inputEnabled = true;
+        txtNext.input.useHandCursor = true;
+        txtNext.events.onInputDown.add(function nextPage(evt) {
+            this.updateRecipeDetails("+=1");
+        }, this);
+
+        //add recipe details subgroup
+        this.recipeDetails = this.game.add.group();
+        this.recipeDetails.position.setTo(30, 70);
+        this.scienceSelectPanel.add(this.recipeDetails);
 
         //hidden by default
         this.scienceSelectPanel.visible = false;

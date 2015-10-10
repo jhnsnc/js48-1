@@ -8,6 +8,10 @@ var battleState = function(game) {};
         //var actionsPanel;
 
         //var scienceSelectPanel;
+        //var recipeDetails;
+        //var recipesData;
+        //var scienceSelectPageNum;
+        //var txtScienceSelectPageNum;
 
         //var ingredientsPanel;
         //var ingredientsDetails;

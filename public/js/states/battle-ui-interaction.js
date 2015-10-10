@@ -45,6 +45,8 @@
     };
     battleState.prototype.handleScience = function(evt) {
         console.log("Player chose \"MAD SCIENCE!\" command");
+        this.updateRecipeData();
+        this.updateRecipeDetails();
         this.scienceSelectPanel.visible = true;
         this.actionsPanel.visible = false;
     };
@@ -64,6 +66,152 @@
         this.enableMonsterInspection();
         this.inspectPanel.visible = true;
         this.actionsPanel.visible = false;
+    };
+    battleState.prototype.updateRecipeData = function() {
+        var self = this;
+
+        this.recipesData = [];
+
+        //massage recipe data
+        _.forEach(RECIPES_DATA, function(recipeData, idx) {
+            var data = _.clone(recipeData);
+            //TODO: apply player 'expertise' modifiers to cost, etc
+
+            //get current ingredient inventory counts
+            data.ingredientCountA = player.ingredientsCount[data.ingredientTypeA];
+            data.ingredientCountB = player.ingredientsCount[data.ingredientTypeB];
+
+            //determine if we can afford this recipe
+            data.canAfford = true;
+            if (data.ingredientCountA < data.ingredientCostA) {
+                data.canAfford = false;
+            } else if (data.ingredientCountB < data.ingredientCostB) {
+                data.canAfford = false;
+            }
+
+            //set sprite names
+            data.ingredientSpriteA = _.pluck(_.where(INGREDIENTS_DATA, {id: data.ingredientTypeA}), 'spriteName');
+            data.ingredientSpriteB = _.pluck(_.where(INGREDIENTS_DATA, {id: data.ingredientTypeB}), 'spriteName');
+
+            self.recipesData.push(data);
+        });
+
+        //sort recipes
+        //split list
+        self.recipesData = _.partition(self.recipesData, function(recipe) {
+            return recipe.canAfford;
+        });
+        //sort pieces
+        self.recipesData[0] = _.sortBy(self.recipesData[0], 'idx');
+        self.recipesData[1] = _.sortBy(self.recipesData[1], 'idx');
+        //merge pieces
+        self.recipesData = self.recipesData[0].concat(self.recipesData[1]);
+    };
+    battleState.prototype.updateRecipeDetails = function(pageNum) {
+        if (typeof pageNum === "undefined") {
+            this.scienceSelectPageNum = this.scienceSelectPageNum || 1;
+        } else if (typeof pageNum === "string") {
+            if (pageNum === "+=1" && this.scienceSelectPageNum < 5) {
+                this.scienceSelectPageNum += 1;
+            } else if (pageNum === "-=1" && this.scienceSelectPageNum > 1) {
+                this.scienceSelectPageNum -= 1;
+            }
+        } else if (typeof pageNum === "number" && pageNum >= 1 && pageNum <= 5) {
+            this.scienceSelectPageNum = pageNum;
+        }
+
+        var recipesToShow = this.recipesData.slice(3*(this.scienceSelectPageNum-1), 3*this.scienceSelectPageNum);
+        var subgroups = [];
+        var self = this;
+
+        //prep subgroups with display info for each recipe
+        _.forEach(recipesToShow, function(recipeData, idx) {
+            var subgroup = self.game.add.group();
+            subgroup.position.setTo(0, idx*60);
+
+            var textField, image, fill;
+
+            //display name
+            fill = (recipeData.canAfford) ? '#ffffff' : '#666666';
+            textField = createGameText({
+                x: 90, y: 0,
+                text: recipeData.displayName,
+                fontSize: 20,
+                fill: fill
+            }, self);
+            subgroup.add(textField);
+            if (recipeData.canAfford) {
+                textField.inputEnabled = true;
+                textField.input.useHandCursor = true;
+                textField.events.onInputDown.add(function selectReaction(reactionId, evt) {
+                    this.useReaction(reactionId);
+                    this.scienceSelectPanel.visible = false;
+                    this.actionsPanel.visible = true;
+                }.bind(self, recipeData.id), self);
+            }
+
+            //description
+            textField = createGameText({
+                x: 90, y: 30,
+                text: recipeData.descriptionText,
+                fontSize: 12,
+                fill: fill,
+                strokeThickness: 4
+            }, self);
+            subgroup.add(textField);
+
+            //ingredient A
+            fill = (recipeData.ingredientCostA <= recipeData.ingredientCountA) ? '#ffffff' : '#666666';
+            image = self.game.add.sprite(0 - 10, 0 - 13, recipeData.ingredientSpriteA);
+            subgroup.add(image);
+            textField = createGameText({
+                x: 30, y: 0,
+                text: recipeData.ingredientCountA+'/'+recipeData.ingredientCostA,
+                fontSize: 15,
+                fill: fill
+            }, self);
+            subgroup.add(textField);
+
+            //ingredient B
+            fill = (recipeData.ingredientCostB <= recipeData.ingredientCountB) ? '#ffffff' : '#666666';
+            image = self.game.add.sprite(0 - 10, 25 - 13, recipeData.ingredientSpriteB);
+            subgroup.add(image);
+            textField = createGameText({
+                x: 30, y: 25,
+                text: recipeData.ingredientCountB+'/'+recipeData.ingredientCostB,
+                fontSize: 15,
+                fill: fill
+            }, self);
+            subgroup.add(textField);
+
+            subgroups.push( subgroup );
+        });
+
+        //update pageNum display
+        this.txtScienceSelectPageNum.text = this.scienceSelectPageNum + "/5";
+
+        //wipe child groups and input elements
+        _.forEach(this.recipeDetails.children, function(subgroup, idx) {
+            //wipe input events off children
+            _.forEach(subgroup.children, function(element, idx) {
+                if (element.events) {
+                    element.events.onInputDown.removeAll(this);
+                }
+                if (element.input) {
+                    element.input.useHandCursor = false;
+                }
+                element.inputEnabled = false;
+            });
+
+            //remove children
+            subgroup.removeAll();
+        });
+
+        //remove/add elements
+        this.recipeDetails.removeAll();
+        _.forEach(subgroups, function(subgroup) {
+            self.recipeDetails.add(subgroup);
+        });
     };
     battleState.prototype.updateIngredientsPanel = function() {
         var txtFields = [];
@@ -120,7 +268,7 @@
         _.forEach(this.monsters, function(monster) {
             monster.sprite.events.onInputDown.removeAll(this);
             monster.sprite.input.useHandCursor = false;
-            monster.sprite.inputEnabled = true;
+            monster.sprite.inputEnabled = false;
         });
     };
     battleState.prototype.inspectMonster = function(targetMonsterData) {
@@ -166,7 +314,7 @@
                 fontSize: 30
             }, this);
 
-            text = ((targetMonsterData.damageType === "phsyical") ? 'Might: ' : 'Magic: ') + targetMonsterData.damage;
+            text = ((targetMonsterData.damageType === "physical") ? 'Might: ' : 'Magic: ') + targetMonsterData.damage;
             txtDamage = createGameText({
                 x: 110, y: 120,
                 text: text,
