@@ -16,5 +16,29 @@ var createGameText = function (options, ctx) {
     result.font = 'Topaz';
     result.fontSize = options.fontSize;
 
-    return result
+    return result;
+};
+
+var createFullscreenToggle = function(ctx) {
+    ctx.game.scale.fullScreenScaleMode = Phaser.ScaleManager.SHOW_ALL;
+
+    var result;
+
+    result = ctx.game.add.sprite(960, 510, "ui-FullscreenToggle");
+    result.inputEnabled = true;
+    result.input.useHandCursor = true;
+    result.events.onInputDown.add(toggleFullscreen, ctx);
+
+    return result;
 }
+
+var toggleFullscreen = function(ctx) {
+    if (ctx.game.scale.isFullScreen)
+    {
+        ctx.game.scale.stopFullScreen();
+    }
+    else
+    {
+        ctx.game.scale.startFullScreen(false);
+    }
+};

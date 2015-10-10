@@ -94,6 +94,24 @@ var INGREDIENTS_DATA = [
     }
 ];
 
+var RECIPES_DATA = [
+    {
+        id: "Foomsplosion",
+        displayName: "Foomsplosion",
+        target: "enemy-all",
+        ingredients: [
+            {
+                id: "Oil",
+                amount: 2
+            },
+            {
+                id: "BlackPowder",
+                amount: 3
+            }
+        ]
+    }
+];
+
 var GROUND_TILESETS = [
     /*{
         name: "CrustedGround",

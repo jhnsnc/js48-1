@@ -20,8 +20,6 @@ var battleState = function(game) {};
         //var playerPanel;
         //var playerPanelDetails;
 
-        preload: function() {
-        },
         create: function() {
             console.log("Starting Battle");
 
@@ -73,14 +71,17 @@ var battleState = function(game) {};
 
             //play info panel
             this.setupPlayerPanel();
+
+            //fullscreen toggle
+            createFullscreenToggle(this);
         },
         setupMonsters: function(monsterTypes) {
             console.log("creating monsters of type: " + monsterTypes.join(', '));
 
             var i, len;
             var sprite, monster, monsterSprites;
-            var positionVariationX = 37.5;
-            var positionVariationY = 22.5;
+            var positionVariationX = 25;
+            var positionVariationY = 20;
 
             monsterSprites = this.game.add.group();
             monsterSprites.position.setTo(0, 200);
@@ -403,7 +404,8 @@ var battleState = function(game) {};
                 }, self);
                 txtFields.push( textField );
 
-                image = self.game.add.sprite(200*Math.floor(idx%2) + 40, Math.floor(idx/2)*60 + 10, ingredientData.spriteName);
+                image = self.game.add.sprite(200*Math.floor(idx%2) + 12, Math.floor(idx/2)*60 - 22, ingredientData.spriteName);
+                image.scale.setTo(2.0, 2.0);
                 images.push(image);
             });
 
