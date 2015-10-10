@@ -2,92 +2,42 @@ var battleState = function(game) {};
 
 (function() {
 
-    var MONSTER_DATA = {
-        "RedSlime": {
-            spriteName: "monster-RedSlime",
-            maxHP: 20,
-            strength: 2,
-            armor: 0
-        },
-        "BlackSpider": {
-            spriteName: "monster-BlackSpider",
-            maxHP: 10,
-            strength: 3,
-            armor: 1
-        },
-        "Goblin": {
-            spriteName: "monster-Goblin",
-            maxHP: 25,
-            strength: 6,
-            armor: 3
-        },
-        "Pixie": {
-            spriteName: "monster-Pixie",
-            maxHP: 30,
-            strength: 4,
-            armor: 2
-        },
-        "Skeleton": {
-            spriteName: "monster-Skeleton",
-            maxHP: 40,
-            strength: 20,
-            armor: 6
-        },
-        "MudGolem": {
-            spriteName: "monster-MudGolem",
-            maxHP: 50,
-            strength: 15,
-            armor: 10
-        },
-    };
-    var GROUND_TILESETS = [
-        /*{
-            name: "CrustedGround",
-            location: "assets/tiles/ground_crusted.png"
-        },*/
-        {
-            name: "BrownDirt",
-            location: "assets/tiles/ground_dirt_brown.png"
-        }
-    ];
-
     battleState.prototype = {
-        //var groundTileset;
         //var monsters; //array of monster objects
-        //var player; //sprite
+
         //var actionsPanel;
-        //var playerPanel;
+
         //var scienceSelectPanel;
+
         //var ingredientsPanel;
+        //var ingredientsDetails;
+
         //var researchResultsPanel;
+
         //var inspectPanel;
         //var inspectMonsterDetails;
 
+        //var playerPanel;
+        //var playerPanelDetails;
+
         preload: function() {
-            this.groundTileset = GROUND_TILESETS[ Math.floor(Math.random() * GROUND_TILESETS.length) ];
-
-            this.game.load.image("ui-ActionPanel", "assets/ui/ui-action-panel.png");
-
-            this.game.load.image("ui-PlayerPanel", "assets/ui/ui-player-panel.png");
-            this.game.load.image("ui-PlayerPortrait", "assets/ui/ui-player-portrait.png");
-
-            //this.game.load.image("tiles-CrustedGround", "assets/tiles/ground_crusted.png");
-            this.game.load.image("tiles-"+this.groundTileset.name, this.groundTileset.location);
         },
         create: function() {
             console.log("Starting Battle");
 
-            var bgSky, bgGround, bgGroundHorizon;
+            var bgSky, bgGround, bgGroundHorizon, groundTileset;
             var tiles, bitmapData, grd;
             var x, y, w, h;
+
 
             //sky
             bgSky = this.game.add.sprite(0, 0, "background-Sky");
             bgSky.width = 1080;
 
             //ground tiles
-            tiles = new Phaser.Sprite(this.game, 0, 0, "tiles-"+this.groundTileset.name);
-            bitmapData = new Phaser.BitmapData(this.game, "bitmapData-"+this.groundTileset.name, 240, 240);
+            groundTileset = GROUND_TILESETS[ Math.floor(Math.random() * GROUND_TILESETS.length) ].name;
+            tiles = new Phaser.Sprite(this.game, 0, 0, "tiles-"+groundTileset);
+            bitmapData = new Phaser.BitmapData(this.game, "bitmapData-"+groundTileset, 240, 240);
             w = 48;
             h = 48;
             for (x = 0; x <= bitmapData.width; x += w) {
@@ -95,16 +45,18 @@ var battleState = function(game) {};
                     bitmapData.copy(tiles, w*Math.floor(Math.random()*4), 0, w, h, x, y);
                 }
             }
-            bitmapData.generateTexture("bg-"+this.groundTileset.name)
-            bgGround = this.game.add.tileSprite(0, 200, 1080, 400, "bg-"+this.groundTileset.name);
+            bitmapData.generateTexture("bg-"+groundTileset)
+            bgGround = this.game.add.tileSprite(0, 200, 1080, 400, "bg-"+groundTileset);
             bgGround.tileScale.setTo(2.0, 2.0);
 
             //ground horizon gradient
             bitmapData = new Phaser.BitmapData(this.game, "bitmapData-GroundGradient", 1, 400);
             grd = bitmapData.context.createLinearGradient(0, 0, 1, 400);
-            grd.addColorStop(0.0, "rgba(0,0,0,0.5)");
-            grd.addColorStop(0.2, "rgba(0,0,0,0.2)");
-            grd.addColorStop(1.0, "rgba(0,0,0,0.0)");
+            grd.addColorStop(0.00, "rgba(0,0,0,0.5)");
+            grd.addColorStop(0.08, "rgba(0,0,0,0.2)");
+            grd.addColorStop(0.20, "rgba(0,0,0,0.0)");
+            grd.addColorStop(0.35, "rgba(0,0,0,0.2)");
+            grd.addColorStop(1.00, "rgba(0,0,0,0.5)");
             bitmapData.rect(0, 0, 1, 400, grd);
             bitmapData.generateTexture("bg-GroundGradient");
             bgGroundHorizon = this.game.add.tileSprite(0, 200, 1080, 400, "bg-GroundGradient");
@@ -143,7 +95,11 @@ var battleState = function(game) {};
                     sprite.anchor.setTo(0.5, 0.5);
                     sprite.scale.setTo(4.0, 4.0);
                     sprite.animations.add('idle', [0,0,0,0,0,1,2,3,0,1,2,3], 8, true);
-                    sprite.animations.play('idle');
+
+                    //stagger monster animation start
+                    setTimeout(function(idx) {
+                        this.monsters[idx].sprite.animations.play('idle');
+                    }.bind(this, i), i*(1500/len) + 250*Math.random());
 
                     //clone data, assign additional values
                     monster = _.clone(MONSTER_DATA[monsterTypes[i]]);
@@ -227,20 +183,20 @@ var battleState = function(game) {};
         },
         setupScienceSelectPanel: function() {
             var panelBack;
-            var txtPlaceholder;
+            var txtLabel;
 
             this.scienceSelectPanel = this.game.add.group();
             this.scienceSelectPanel.position.setTo(140, 300);
 
             panelBack = this.scienceSelectPanel.create(0, 0, "ui-ActionPanel");
 
-            //DUMMY: add placeholder text
-            txtPlaceholder = createGameText({
+            //heading text
+            txtLabel = createGameText({
                 x: 30, y: 30,
                 text: 'Select reaction:',
                 fontSize: 35
             }, this);
-            this.scienceSelectPanel.add(txtPlaceholder);
+            this.scienceSelectPanel.add(txtLabel);
 
             //hide panel on click (and show actions panel)
             panelBack.inputEnabled = true;
@@ -255,20 +211,20 @@ var battleState = function(game) {};
         },
         setupIngredientsPanel: function() {
             var panelBack;
-            var txtPlaceholder;
+            var txtLabel;
 
             this.ingredientsPanel = this.game.add.group();
             this.ingredientsPanel.position.setTo(140, 300);
 
             panelBack = this.ingredientsPanel.create(0, 0, "ui-ActionPanel");
 
-            //DUMMY: add placeholder text
-            txtPlaceholder = createGameText({
+            //heading text
+            txtLabel = createGameText({
                 x: 30, y: 30,
                 text: 'Ingredients inventory:',
                 fontSize: 35
             }, this);
-            this.ingredientsPanel.add(txtPlaceholder);
+            this.ingredientsPanel.add(txtLabel);
 
             //hide panel on click (and show actions panel)
             panelBack.inputEnabled = true;
@@ -278,25 +234,30 @@ var battleState = function(game) {};
                 this.actionsPanel.visible = true;
             }, this);
 
+            //add ingredients details subgroup
+            this.ingredientsDetails = this.game.add.group();
+            this.ingredientsDetails.position.setTo(30, 90);
+            this.ingredientsPanel.add(this.ingredientsDetails);
+
             //hidden by default
             this.ingredientsPanel.visible = false;
         },
         setupResearchResultsPanel: function() {
             var panelBack;
-            var txtPlaceholder;
+            var txtLabel;
 
             this.researchResultsPanel = this.game.add.group();
             this.researchResultsPanel.position.setTo(140, 300);
 
             panelBack = this.researchResultsPanel.create(0, 0, "ui-ActionPanel");
 
-            //DUMMY: add placeholder text
-            txtPlaceholder = createGameText({
+            //heading text
+            txtLabel = createGameText({
                 x: 30, y: 30,
                 text: 'Research results:',
                 fontSize: 35
             }, this);
-            this.researchResultsPanel.add(txtPlaceholder);
+            this.researchResultsPanel.add(txtLabel);
 
             //hide panel on click (and show actions panel)
             panelBack.inputEnabled = true;
@@ -311,20 +272,20 @@ var battleState = function(game) {};
         },
         setupInspectPanel: function() {
             var panelBack;
-            var txtInstructions;
+            var txtLabel;
 
             this.inspectPanel = this.game.add.group();
             this.inspectPanel.position.setTo(140, 300);
 
             panelBack = this.inspectPanel.create(0, 0, "ui-ActionPanel");
 
-            //instructions text
-            txtInstructions = createGameText({
+            //heading text
+            txtLabel = createGameText({
                 x: 30, y: 30,
                 text: 'Inspect monster:',
                 fontSize: 35
             }, this);
-            this.inspectPanel.add(txtInstructions);
+            this.inspectPanel.add(txtLabel);
 
             //hide panel on click (and show actions panel)
             panelBack.inputEnabled = true;
@@ -337,7 +298,7 @@ var battleState = function(game) {};
 
             //add monster details subgroup
             this.inspectMonsterDetails = this.game.add.group();
-            this.inspectMonsterDetails.position.setTo(30, 90);
+            this.inspectMonsterDetails.position.setTo(30 + 60, 90 + 20);
             this.inspectPanel.add(this.inspectMonsterDetails);
 
             //hidden by default
@@ -353,14 +314,55 @@ var battleState = function(game) {};
             portrait = this.playerPanel.create(30, 30, "ui-PlayerPortrait");
             portrait.scale.setTo(1.5, 1.5);
 
-            txtHp = this.game.add.text(115, 30, 'HP:', {
-                fill: '#ffffff',
-                stroke: '#181818',
-                strokeThickness: 5
-            });
-            txtHp.font = 'Topaz';
-            txtHp.fontSize = 30;
-            this.playerPanel.add(txtHp);
+            this.playerPanelDetails = this.game.add.group();
+            this.playerPanelDetails.position.setTo(30, 30);
+            this.playerPanel.add(this.playerPanelDetails);
+
+            this.updatePlayerPanelDetails();
+        },
+        updatePlayerPanelDetails: function() {
+            var text;
+            var txtHP, txtStrength, txtArmor;
+
+            //HP
+            text = "HP: " + player.currentHP + "/" + player.maxHP;
+            txtHP = createGameText({
+                x: 85, y: 0,
+                text: text,
+                fontSize: 30
+            }, this);
+
+            //strength
+            text = "Strength: " + player.baseStrength;
+            if (player.tempStrenth > 0) {
+                text += " (+" + Math.abs(player.tempStrength) + ")";
+            } else if (player.tempStrenth < 0) {
+                text += " (-" + Math.abs(player.tempStrength) + ")";
+            }
+            txtStrength = createGameText({
+                x: 0, y: 85,
+                text: text,
+                fontSize: 30
+            }, this);
+
+            //armor
+            text = "Armor: " + player.baseArmor;
+            if (player.tempStrenth > 0) {
+                text += " (+" + Math.abs(player.tempArmor) + ")";
+            } else if (player.tempStrenth < 0) {
+                text += " (-" + Math.abs(player.tempArmor) + ")";
+            }
+            txtArmor = createGameText({
+                x: 0, y: 125,
+                text: text,
+                fontSize: 30
+            }, this);
+
+            //update details with new elements
+            this.playerPanelDetails.removeAll();
+            this.playerPanelDetails.add(txtHP);
+            this.playerPanelDetails.add(txtStrength);
+            this.playerPanelDetails.add(txtArmor);
         },
         handleScience: function(evt) {
             console.log("Player chose \"MAD SCIENCE!\" command");
@@ -368,20 +370,51 @@ var battleState = function(game) {};
             this.actionsPanel.visible = false;
         },
         handleIngredients: function(evt) {
-            console.log("Player chose \"ingredients\" command");
+            console.log("Player chose \"Ingredients\" command");
+            this.updateIngredientsPanel();
             this.ingredientsPanel.visible = true;
             this.actionsPanel.visible = false;
         },
         handleResearch: function(evt) {
-            console.log("Player chose \"research\" command");
+            console.log("Player chose \"Research\" command");
             this.researchResultsPanel.visible = true;
             this.actionsPanel.visible = false;
         },
         handleInspect: function(evt) {
-            console.log("Player chose \"inspect\" command");
+            console.log("Player chose \"Inspect\" command");
             this.enableMonsterInspection();
             this.inspectPanel.visible = true;
             this.actionsPanel.visible = false;
+        },
+        updateIngredientsPanel: function() {
+            var txtFields = [];
+            var images = [];
+            var numIngs = INGREDIENTS_DATA.length;
+            var self = this;
+
+            //prep text fields and images
+            _.forEach(INGREDIENTS_DATA, function(ingredientData, idx) {
+                var textField, image;
+
+                textField = createGameText({
+                    x: 200*Math.floor(idx%2) + 100, y: Math.floor(idx/2)*60 + 10,
+                    text: 'x ' + player.ingredientsCount[ingredientData.id],
+                    fontSize: 30
+                }, self);
+                txtFields.push( textField );
+
+                image = self.game.add.sprite(200*Math.floor(idx%2) + 40, Math.floor(idx/2)*60 + 10, ingredientData.spriteName);
+                images.push(image);
+            });
+
+            //remove/add elements
+            this.ingredientsDetails.removeAll();
+            _.forEach(txtFields, function(textField) {
+                self.ingredientsDetails.add(textField);
+            });
+            _.forEach(images, function(image) {
+                self.ingredientsDetails.add(image);
+            });
         },
         enableMonsterInspection: function() {
             var self = this;
