@@ -42,3 +42,7 @@ var toggleFullscreen = function(ctx) {
         ctx.game.scale.startFullScreen(false);
     }
 };
+
+var intBetween = function(min, max) {
+    return Math.floor((Math.random()*(max-min)) + min);
+}

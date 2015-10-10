@@ -16,9 +16,17 @@ var player = (function() {
 
         //default values
         self.ingredientsCount = {};
-        _.forEach(INGREDIENTS_DATA, function(ingredientData) {
-            self.ingredientsCount[ingredientData.id] = Math.floor(Math.random()*20); //FOOBAR //0;
+        var i, ingAlloc = 30;
+        _.forEach(INGREDIENTS_DATA, function(ingredientData, idx) {
+            self.ingredientsCount[ingredientData.id] = 0;
         });
+        while(ingAlloc > 0) {
+            var randType = INGREDIENTS_DATA[intBetween(0,INGREDIENTS_DATA.length)].id;
+            if (self.ingredientsCount[randType] < 8) { //8 = max starting ing count per type
+                self.ingredientsCount[randType] += 1;
+                ingAlloc -= 1;
+            }
+        }
 
         self.maxHP = 20;
         self.currentHP = self.maxHP;
