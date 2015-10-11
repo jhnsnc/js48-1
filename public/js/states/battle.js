@@ -36,7 +36,7 @@ var battleState = function(game) {};
             var bgSky, bgGround, bgGroundHorizon, groundTileset;
             var tiles, bitmapData, grd;
             var x, y, w, h;
-
+            var gfxCover;
 
             //sky
             bgSky = this.game.add.sprite(0, 0, "background-Sky");
@@ -80,8 +80,20 @@ var battleState = function(game) {};
             this.setupInspectPanel();
             this.setupSelectTargetPanel();
 
-            //play info panel
+            //player info panel
             this.setupPlayerPanel();
+
+            //fade in cover graphic (black)
+            gfxCover = this.game.add.graphics(0, 0);
+            gfxCover.beginFill(0x000000, 1.0);
+            gfxCover.drawRect(0, 0, 1080, 600);
+            gfxCover.endFill();
+            gfxCover.alpha = 1.0;
+            this.game.add.tween(gfxCover)
+                .to({alpha: 0.0}, 2500, Phaser.Easing.Sinusoidal.InOut, true)
+                .onComplete.add(function() {
+                    gfxCover.parent.removeChild(gfxCover);
+                }, this);
 
             //fullscreen toggle
             createFullscreenToggle(this);

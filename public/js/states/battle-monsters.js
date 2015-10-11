@@ -79,7 +79,7 @@
         //damage
         monsterData.damage = monsterData.damageBase + (monsterData.damageGrowth * level);
         //special
-        monsterData.turnDebt = 0;
+        monsterData.turnDebt = 1;
     };
     battleState.prototype.monsterHandleSpell = function(monster, recipeData, damageRoll) {
         //console.log("monster targeted recipe: ",damageRoll);

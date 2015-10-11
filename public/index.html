@@ -24,6 +24,7 @@
     <script type="text/javascript" src="js/states/boot.js"></script>
     <script type="text/javascript" src="js/states/preload.js"></script>
     <script type="text/javascript" src="js/states/title.js"></script>
+    <script type="text/javascript" src="js/states/intro.js"></script>
     <script type="text/javascript" src="js/states/battle.js"></script>
     <script type="text/javascript" src="js/states/battle-combat.js"></script>
     <script type="text/javascript" src="js/states/battle-monsters.js"></script>
@@ -42,6 +43,7 @@
                 game.state.add("Boot", bootState);
                 game.state.add("Preload", preloadState);
                 game.state.add("Title", titleState);
+                game.state.add("Intro", introState);
                 game.state.add("Battle", battleState);
                 game.state.add("Victory", victoryState);
                 game.state.add("Defeat", defeatState);
@@ -51,8 +53,17 @@
         })();
     </script>
 
-    <h1 class="no-js-warning" style="font-family: 'Topaz';">Hey! You need to enable JavaScript in order to play this game.</h1>
-    <p class="no-js-warning" style="font-family: 'Topaz';">If you&rsquo;re still having trouble, you can <a href="mailto:jhnsn.c@gmail.com">send the developer a quick email</a>.</p>
+    <div id="no-js-warning" style="z-index: -10; position: absolute;">
+        <h1 style="font-family: 'Topaz';">Hey! You need to enable JavaScript in order to play this game.</h1>
+        <p style="font-family: 'Topaz';">If you&rsquo;re still having trouble, you can <a href="mailto:jhnsn.c@gmail.com">send the developer a quick email</a>.</p>
+    </div>
+    <script type="text/javascript">
+        (function() {
+            setTimeout(function() {
+                document.getElementById('no-js-warning').remove();
+            }, 1500);
+        })();
+    </script>
 
 </body>
 </html>

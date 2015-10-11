@@ -10,7 +10,7 @@
 
         btnScience = createGameText({
             x: 30, y: 35,
-            text: 'MAD SCIENCE!',
+            text: 'Mad Science!',
             fontSize: 45
         }, this);
         this.actionsPanel.add(btnScience);
@@ -60,7 +60,7 @@
         //heading text
         txtLabel = createGameText({
             x: 30, y: 30,
-            text: 'Select reaction:',
+            text: 'Select mixture:',
             fontSize: 25
         }, this);
         this.scienceSelectPanel.add(txtLabel);
@@ -270,40 +270,78 @@
         console.log("all enemies destroyed - VICTORY!");
 
         var self = this;
+        var gfxCover;
 
-        //TODO: change this timeout to be on tweens complete
-        setTimeout(function() {
-            self.game.state.start("Victory");
-        }, 3000)
+        //disable input
+        _.forEach(self.actionsPanel.children, disableEvents);
+        _.forEach(self.gatherResultsPanel.children, disableEvents);
 
-        _.forEach(self.actionsPanel.children, function(element) {
-            if (element.events) {
-                element.events.onInputDown.removeAll();
-            }
-            if (element.input) {
-                element.input.useHandCursor = false;
-            }
-            element.inputEnabled = false;
-        });
+        //fade out panels
+        this.game.add.tween(this.actionsPanel)
+            .to({alpha: 0.0}, 1250, Phaser.Easing.Quadratic.InOut, true);
+        this.game.add.tween(this.gatherResultsPanel)
+            .to({alpha: 0.0}, 1250, Phaser.Easing.Quadratic.InOut, true);
+        this.game.add.tween(this.playerPanel)
+            .to({alpha: 0.0}, 1250, Phaser.Easing.Quadratic.InOut, true);
+
+        //fade in cover graphic (white)
+        gfxCover = this.game.add.graphics(0, 0);
+        gfxCover.beginFill(0xffffff, 1.0);
+        gfxCover.drawRect(0, 0, 1080, 600);
+        gfxCover.endFill();
+        gfxCover.alpha = 0.0;
+        this.game.add.tween(gfxCover)
+            .to({alpha: 1.0}, 3500, Phaser.Easing.Sinusoidal.Out, true, 1000);
+
+        //fade in cover graphic (black)
+        gfxCover = this.game.add.graphics(0, 0);
+        gfxCover.beginFill(0x000000, 1.0);
+        gfxCover.drawRect(0, 0, 1080, 600);
+        gfxCover.endFill();
+        gfxCover.alpha = 0.0;
+        this.game.add.tween(gfxCover)
+            .to({alpha: 1.0}, 1500, Phaser.Easing.Sinusoidal.Out, true, 2500)
+            .onComplete.add(function() {
+                self.game.state.start("Victory");
+            }, this);
     };
     battleState.prototype.beginGameOverSequence = function() {
         console.log("the player died - DEFEAT");
 
         var self = this;
+        var gfxCover;
 
-        //TODO: change this timeout to be on tweens complete
-        setTimeout(function() {
-            self.game.state.start("Defeat");
-        }, 3000);
+        //disable input
+        _.forEach(self.actionsPanel.children, disableEvents);
+        _.forEach(self.gatherResultsPanel.children, disableEvents);
 
-        _.forEach(self.actionsPanel.children, function(element) {
-            if (element.events) {
-                element.events.onInputDown.removeAll();
-            }
-            if (element.input) {
-                element.input.useHandCursor = false;
-            }
-            element.inputEnabled = false;
-        });
+        //fade out panels
+        this.game.add.tween(this.actionsPanel)
+            .to({alpha: 0.0}, 1250, Phaser.Easing.Quadratic.InOut, true);
+        this.game.add.tween(this.gatherResultsPanel)
+            .to({alpha: 0.0}, 1250, Phaser.Easing.Quadratic.InOut, true);
+        this.game.add.tween(this.playerPanel)
+            .to({alpha: 0.0}, 1250, Phaser.Easing.Quadratic.InOut, true);
+
+        //fade in cover graphic (red)
+        gfxCover = this.game.add.graphics(0, 0);
+        gfxCover.beginFill(0x980216, 1.0);
+        gfxCover.drawRect(0, 0, 1080, 600);
+        gfxCover.endFill();
+        gfxCover.alpha = 0.0;
+        this.game.add.tween(gfxCover)
+            .to({alpha: 1.0}, 3500, Phaser.Easing.Sinusoidal.Out, true, 1000);
+
+        //fade in cover graphic (black)
+        gfxCover = this.game.add.graphics(0, 0);
+        gfxCover.beginFill(0x000000, 1.0);
+        gfxCover.drawRect(0, 0, 1080, 600);
+        gfxCover.endFill();
+        gfxCover.alpha = 0.0;
+        this.game.add.tween(gfxCover)
+            .to({alpha: 1.0}, 1500, Phaser.Easing.Sinusoidal.Out, true, 2500)
+            .onComplete.add(function() {
+                self.game.state.start("Defeat");
+            }, this);
     };
 })();

@@ -2,13 +2,15 @@ var defeatState = function(game) {};
 
 (function() {
     defeatState.prototype = {
-        //var txtTitle;
-        //var btnStartGame;
+        //var displayElements;
 
         create: function() {
             console.log("Showing defeat screen");
 
             var txtTitle, txtTryAgain, btnStartGame, txtLvlAchieved;
+
+            this.displayElements = this.game.add.group();
+            this.displayElements.alpha = 0.0;
 
             //title
             txtTitle = createGameText({
@@ -18,6 +20,7 @@ var defeatState = function(game) {};
                 strokeThickness: 8
             }, this);
             txtTitle.anchor.setTo(0.5, 0.5);
+            this.displayElements.add(txtTitle);
 
             //button
             btnStartGame = this.game.add.sprite(540, 290, "monster-RedSlime");
@@ -28,6 +31,7 @@ var defeatState = function(game) {};
             btnStartGame.inputEnabled = true;
             btnStartGame.input.useHandCursor = true;
             btnStartGame.events.onInputDown.add(this.backToTitle, this);
+            this.displayElements.add(btnStartGame);
 
             //try again text
             txtTryAgain = createGameText({
@@ -41,6 +45,7 @@ var defeatState = function(game) {};
             txtTryAgain.inputEnabled = true;
             txtTryAgain.input.useHandCursor = true;
             txtTryAgain.events.onInputDown.add(this.backToTitle, this);
+            this.displayElements.add(txtTryAgain);
 
             //level achieved text
             txtLvlAchieved = createGameText({
@@ -50,6 +55,11 @@ var defeatState = function(game) {};
                 strokeThickness: 8
             }, this);
             txtLvlAchieved.anchor.setTo(0.5, 0.5);
+            this.displayElements.add(txtLvlAchieved);
+
+            //fade in elements
+            this.game.add.tween(this.displayElements)
+                .to({alpha: 1.0}, 1250, Phaser.Easing.Sinusoidal.InOut, true);
 
             //fullscreen toggle
             createFullscreenToggle(this);
@@ -57,7 +67,11 @@ var defeatState = function(game) {};
         backToTitle: function(sprite, pointer) {
             player.init();
 
-            this.game.state.start("Title");
+            this.game.add.tween(this.displayElements)
+                .to({alpha: 0.0}, 500, Phaser.Easing.Sinusoidal.Out, true)
+                .onComplete.add(function() {
+                    this.game.state.start("Intro");
+                }, this);
         }
     };
 })();

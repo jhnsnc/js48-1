@@ -32,7 +32,7 @@ var player = (function() {
 
         //base stats
         self.level = 0;
-        self.maxHP = 30;
+        self.maxHP = 60;
         self.armor = 3;
         self.resist = 5;
 
@@ -50,19 +50,19 @@ var player = (function() {
 
         self.level += 1;
 
-        var statAlloc = 10; //10 points distributed between armor, resist, and HP (1 point = 2 HP, or 1 armor/resist)
+        var statAlloc = 15; //10 points distributed between armor, resist, and HP (1 point = 2 HP, or 1 armor/resist)
         while(statAlloc > 0) {
             switch(intBetween(0,3)) {
                 case 0:
-                    self.maxHP += 2;
+                    self.maxHP += 5;
                     statAlloc -= 1;
                     break;
                 case 1:
-                    self.armor += 1;
+                    self.armor += 2;
                     statAlloc -= 1;
                     break;
                 case 2:
-                    self.resist += 1;
+                    self.resist += 2;
                     statAlloc -= 1;
                     break;
             }

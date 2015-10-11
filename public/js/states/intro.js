@@ -1,13 +1,13 @@
-var victoryState = function(game) {};
+var introState = function(game) {};
 
 (function() {
-    victoryState.prototype = {
+    introState.prototype = {
         //var displayElements;
 
         create: function() {
-            console.log("Showing victory screen");
+            console.log("Showing intro screen");
 
-            var txtTitle, txtLevel, btnStartGame;
+            var txtTitle, btnStartGame;
 
             this.displayElements = this.game.add.group();
             this.displayElements.alpha = 0.0;
@@ -15,31 +15,19 @@ var victoryState = function(game) {};
             //title
             txtTitle = createGameText({
                 x: 540, y: 150,
-                text: 'Victory!',
+                text: 'Intro!',
                 fontSize: 80,
                 strokeThickness: 8
             }, this);
             txtTitle.anchor.setTo(0.5, 0.5);
             this.displayElements.add(txtTitle);
 
-            //new level
-            txtLevel = createGameText({
-                x: 540, y: 300,
-                text: 'you are now level ' + (player.level + 1) + '!',
-                fontSize: 40,
-                strokeThickness: 8
-            }, this);
-            txtLevel.anchor.setTo(0.5, 0.5);
-            this.displayElements.add(txtLevel);
-
             //button
-            btnStartGame = createGameText({
-                x: 540, y: 450,
-                text: 'Continue to the next battle',
-                fontSize: 30,
-                strokeThickness: 8
-            }, this);
+            btnStartGame = this.game.add.sprite(540, 300, "monster-RedSlime");
             btnStartGame.anchor.setTo(0.5, 0.5);
+            btnStartGame.scale.setTo(4.0, 4.0);
+            btnStartGame.animations.add('idle', [0,0,0,0,0,1,2,3,0,1,2,3], 8, true);
+            btnStartGame.animations.play('idle');
             btnStartGame.inputEnabled = true;
             btnStartGame.input.useHandCursor = true;
             btnStartGame.events.onInputDown.add(this.beginNextBattle, this);
@@ -53,10 +41,6 @@ var victoryState = function(game) {};
             createFullscreenToggle(this);
         },
         beginNextBattle: function(sprite, pointer) {
-            player.levelUp();
-            player.armorMod = 0;
-            player.resistMod = 0;
-
             this.game.add.tween(this.displayElements)
                 .to({alpha: 0.0}, 500, Phaser.Easing.Sinusoidal.Out, true)
                 .onComplete.add(function() {

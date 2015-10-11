@@ -46,3 +46,13 @@ var toggleFullscreen = function(ctx) {
 var intBetween = function(min, max) {
     return Math.floor((Math.random()*(max-min)) + min);
 }
+
+var disableEvents = function(element) {
+    if (element.events) {
+        element.events.onInputDown.removeAll();
+    }
+    if (element.input) {
+        element.input.useHandCursor = false;
+    }
+    element.inputEnabled = false;
+};
