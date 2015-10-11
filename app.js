@@ -4,7 +4,7 @@ var static = require('node-static'),
     port = 3000,
     http = require('http');
 
-var staticServer = new static.Server( './public', {
+var staticServer = new static.Server( './dist', {
     cache: 3600,
     gzip: true
 });
