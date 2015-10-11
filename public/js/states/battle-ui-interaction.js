@@ -7,17 +7,17 @@
         //HP
         text = "HP: " + player.currentHP + "/" + player.maxHP;
         txtHP = createGameText({
-            x: 0, y: 200,
+            x: 0, y: 180,
             text: text,
             fontSize: 30
         }, this);
 
         //level
-        text = "Level: " + player.level;
+        text = "Lv " + player.level;
         txtLevel = createGameText({
-            x: 85, y: 0,
+            x: 110, y: 0,
             text: text,
-            fontSize: 25
+            fontSize: 40
         }, this);
 
         //armor
@@ -29,7 +29,7 @@
             text += " (-" + Math.abs(amount) + ")";
         }
         txtArmor = createGameText({
-            x: 0, y: 85,
+            x: 0, y: 110,
             text: text,
             fontSize: 25
         }, this);
@@ -43,7 +43,7 @@
             text += " (-" + Math.abs(amount) + ")";
         }
         txtResist = createGameText({
-            x: 0, y: 120,
+            x: 0, y: 145,
             text: text,
             fontSize: 25
         }, this);

@@ -257,11 +257,11 @@
         this.playerPanel.position.setTo(640, 300);
 
         panelBack = this.playerPanel.create(0, 0, "ui-PlayerPanel");
-        portrait = this.playerPanel.create(30, 30, "ui-PlayerPortrait");
-        portrait.scale.setTo(1.5, 1.5);
+        portrait = this.playerPanel.create(40, 40, "ui-PlayerPortrait");
+        portrait.scale.setTo(2.0, 2.0);
 
         this.playerPanelDetails = this.game.add.group();
-        this.playerPanelDetails.position.setTo(30, 30);
+        this.playerPanelDetails.position.setTo(40, 40);
         this.playerPanel.add(this.playerPanelDetails);
 
         this.updatePlayerPanelDetails();
