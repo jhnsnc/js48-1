@@ -28,8 +28,10 @@
 
                 //clone data, assign additional values
                 monster = _.clone(MONSTER_DATA[monsterTypes[i]]);
-                this.assignLevelAppropriateMonsterStats(monster, Math.floor(Math.random()*4+1) /* monster level */);
+                this.assignLevelAppropriateMonsterStats(monster, player.level /* monsters same level as player */);
+                //this.assignLevelAppropriateMonsterStats(monster, Math.floor(Math.random()*4+1) /* random monster level */);
                 monster.sprite = sprite;
+                monster.type = monsterTypes[i];
 
                 this.monsters.push(monster);
             }
@@ -77,5 +79,43 @@
         monsterData.damage = monsterData.damageBase + (monsterData.damageGrowth * level);
         //special
         monsterData.turnDebt = 0;
+    };
+    battleState.prototype.monsterHandleSpell = function(monster, recipeData, damageRoll) {
+        //console.log("monster targeted recipe: ",damageRoll);
+        //console.log(recipeData);
+        var amount;
+
+        if (recipeData.debuffMultiplier !== 0.0) { //debuff
+            amount = Math.round(recipeData.debuffMultiplier * damageRoll);
+            if (recipeData.debuffType === "physical" || recipeData.debuffType === "hybrid") {
+                console.log(" - monster ("+monster.type+") - armor debuffed by "+amount);
+                monster.armorMod -= amount;
+            }
+            if (recipeData.debuffType === "magic" || recipeData.debuffType === "hybrid") {
+                console.log(" - monster ("+monster.type+") - resist debuffed by "+amount);
+                monster.resistMod -= amount;
+            }
+        }
+        //skip buff for enemies
+        //skip heal for enemies
+        if (recipeData.inflictTurnDebt !== 0) { //turnDebt
+            amount = recipeData.inflictTurnDebt;
+            console.log(" - monster ("+monster.type+") - turn debt increased by "+amount);
+            monster.turnDebt += amount;
+        }
+        if (recipeData.damageMultiplier !== 0.0) { //damage
+            amount = recipeData.damageMultiplier * damageRoll;
+            var reducedAmount = 0;
+
+            if (recipeData.damageType === "physical" || recipeData.damageType === "hybrid") {
+                reducedAmount += amount * (100/(100 + monster.armor + monster.armorMod));
+            }
+            if (recipeData.damageType === "magic" || recipeData.damageType === "hybrid") {
+                reducedAmount += amount * (100/(100 + monster.resist + monster.resistMod));
+            }
+            reducedAmount = Math.round(reducedAmount);
+            console.log(" - monster ("+monster.type+") - damage taken: "+reducedAmount);
+            monster.currentHP -= reducedAmount;
+        }
     };
 })();

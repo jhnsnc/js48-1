@@ -1,7 +1,7 @@
 (function() {
     battleState.prototype.setupActionsPanel = function() {
         var panelBack;
-        var btnScience, btnIngredients, btnResearch, btnInspect;
+        var btnScience, btnIngredients, btnGather, btnInspect;
 
         this.actionsPanel = this.game.add.group();
         this.actionsPanel.position.setTo(140, 300);
@@ -28,15 +28,15 @@
         btnIngredients.input.useHandCursor = true;
         btnIngredients.events.onInputDown.add(this.handleIngredients, this);
 
-        btnResearch = createGameText({
+        btnGather = createGameText({
             x: 30, y: 155,
-            text: 'Research',
+            text: 'Gather',
             fontSize: 45
         }, this);
-        this.actionsPanel.add(btnResearch);
-        btnResearch.inputEnabled = true;
-        btnResearch.input.useHandCursor = true;
-        btnResearch.events.onInputDown.add(this.handleResearch, this);
+        this.actionsPanel.add(btnGather);
+        btnGather.inputEnabled = true;
+        btnGather.input.useHandCursor = true;
+        btnGather.events.onInputDown.add(this.handleGather, this);
 
         btnInspect = createGameText({
             x: 30, y: 215,
@@ -150,33 +150,33 @@
         //hidden by default
         this.ingredientsPanel.visible = false;
     };
-    battleState.prototype.setupResearchResultsPanel = function() {
+    battleState.prototype.setupGatherResultsPanel = function() {
         var panelBack;
         var txtLabel;
 
-        this.researchResultsPanel = this.game.add.group();
-        this.researchResultsPanel.position.setTo(140, 300);
+        this.gatherResultsPanel = this.game.add.group();
+        this.gatherResultsPanel.position.setTo(140, 300);
 
-        panelBack = this.researchResultsPanel.create(0, 0, "ui-ActionPanel");
+        panelBack = this.gatherResultsPanel.create(0, 0, "ui-ActionPanel");
 
         //heading text
         txtLabel = createGameText({
             x: 30, y: 30,
-            text: 'Research results:',
+            text: 'Gather results:',
             fontSize: 35
         }, this);
-        this.researchResultsPanel.add(txtLabel);
+        this.gatherResultsPanel.add(txtLabel);
 
         //hide panel on click (and show actions panel)
         panelBack.inputEnabled = true;
         panelBack.input.useHandCursor = true;
         panelBack.events.onInputDown.add(function dismissPanel(evt) {
-            this.researchResultsPanel.visible = false;
+            this.gatherResultsPanel.visible = false;
             this.actionsPanel.visible = true;
         }, this);
 
         //hidden by default
-        this.researchResultsPanel.visible = false;
+        this.gatherResultsPanel.visible = false;
     };
     battleState.prototype.setupInspectPanel = function() {
         var panelBack;
@@ -199,7 +199,7 @@
         panelBack.inputEnabled = true;
         panelBack.input.useHandCursor = true;
         panelBack.events.onInputDown.add(function dismissPanel(evt) {
-            this.disableMonsterInspection();
+            this.disableMonsterInteraction();
             this.inspectPanel.visible = false;
             this.actionsPanel.visible = true;
         }, this);
@@ -211,6 +211,40 @@
 
         //hidden by default
         this.inspectPanel.visible = false;
+    };
+    battleState.prototype.setupSelectTargetPanel = function() {
+        var panelBack;
+        var txtLabel;
+
+        this.selectTargetPanel = this.game.add.group();
+        this.selectTargetPanel.position.setTo(140, 300);
+
+        panelBack = this.selectTargetPanel.create(0, 0, "ui-ActionPanel");
+
+        //heading text
+        txtLabel = createGameText({
+            x: 30, y: 30,
+            text: 'Select target',
+            fontSize: 30
+        }, this);
+        this.selectTargetPanel.add(txtLabel);
+
+        this.txtSelectedAbility = createGameText({
+            x: 120, y: 100,
+            text: '',
+            fontSize: 20
+        }, this);
+        this.selectTargetPanel.add(this.txtSelectedAbility);
+
+        this.txtSelectedAbilityDescription = createGameText({
+            x: 120, y: 130,
+            text: '',
+            fontSize: 12
+        }, this);
+        this.selectTargetPanel.add(this.txtSelectedAbilityDescription);
+
+        //hidden by default
+        this.selectTargetPanel.visible = false;
     };
     battleState.prototype.setupPlayerPanel = function() {
         var panelBack, portrait, txtHp;

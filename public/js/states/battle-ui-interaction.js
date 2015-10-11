@@ -65,9 +65,9 @@
         this.ingredientsPanel.visible = true;
         this.actionsPanel.visible = false;
     };
-    battleState.prototype.handleResearch = function(evt) {
-        console.log("Player chose \"Research\" command");
-        this.researchResultsPanel.visible = true;
+    battleState.prototype.handleGather = function(evt) {
+        console.log("Player chose \"Gather\" command");
+        this.gatherResultsPanel.visible = true;
         this.actionsPanel.visible = false;
     };
     battleState.prototype.handleInspect = function(evt) {
@@ -75,6 +75,39 @@
         this.enableMonsterInspection();
         this.inspectPanel.visible = true;
         this.actionsPanel.visible = false;
+    };
+    battleState.prototype.showSelectTargetDialog = function(recipeName, recipeDescription, callback) {
+        console.log("Showing player \"Select target\" dialog");
+
+        var self = this;
+
+        this.actionsPanel.visible = false;
+        this.selectTargetPanel.visible = true;
+
+        this.txtSelectedAbility.text = recipeName;
+        this.txtSelectedAbilityDescription.text = recipeDescription;
+
+        //enable click events for all monsters
+        _.forEach(self.monsters, function(monster) {
+            monster.sprite.inputEnabled = true;
+            monster.sprite.input.useHandCursor = true;
+            monster.sprite.events.onInputDown.add(function(target) {
+                //on click
+                var targetMonsterData = _.find(self.monsters, function test(monster) {
+                    return monster.sprite.z === target.z;
+                }, self);
+
+                //unbind click events
+                self.disableMonsterInteraction();
+
+                //swap panel visibility
+                self.selectTargetPanel.visible = false;
+                self.actionsPanel.visible = true;
+
+                //invoke callback
+                callback.apply(self, [targetMonsterData]);
+            }, this);
+        });
     };
     battleState.prototype.updateRecipeData = function() {
         var self = this;
@@ -153,9 +186,9 @@
                 textField.inputEnabled = true;
                 textField.input.useHandCursor = true;
                 textField.events.onInputDown.add(function selectReaction(reactionId, evt) {
-                    this.useReaction(reactionId);
                     this.scienceSelectPanel.visible = false;
                     this.actionsPanel.visible = true;
+                    this.useReaction(reactionId);
                 }.bind(self, recipeData.id), self);
             }
 
@@ -204,7 +237,7 @@
             //wipe input events off children
             _.forEach(subgroup.children, function(element, idx) {
                 if (element.events) {
-                    element.events.onInputDown.removeAll(this);
+                    element.events.onInputDown.removeAll();
                 }
                 if (element.input) {
                     element.input.useHandCursor = false;
@@ -272,10 +305,11 @@
             }, this);
         });
     };
-    battleState.prototype.disableMonsterInspection = function() {
+    battleState.prototype.disableMonsterInteraction = function() {
         //disable click events for all monsters
-        _.forEach(this.monsters, function(monster) {
-            monster.sprite.events.onInputDown.removeAll(this);
+        var self = this;
+        _.forEach(self.monsters, function(monster) {
+            monster.sprite.events.onInputDown.removeAll();
             monster.sprite.input.useHandCursor = false;
             monster.sprite.inputEnabled = false;
         });

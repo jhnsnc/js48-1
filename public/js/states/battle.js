@@ -16,13 +16,17 @@ var battleState = function(game) {};
         //var ingredientsPanel;
         //var ingredientsDetails;
 
-        //var researchResultsPanel;
+        //var gatherResultsPanel;
 
         //var inspectPanel;
         //var inspectMonsterDetails;
 
         //var playerPanel;
         //var playerPanelDetails;
+
+        //var selectTargetPanel;
+        //var txtSelectedAbility;
+        //var txtSelectedAbilityDescription;
 
         create: function() {
             console.log("Starting Battle");
@@ -70,8 +74,9 @@ var battleState = function(game) {};
             this.setupActionsPanel();
             this.setupScienceSelectPanel();
             this.setupIngredientsPanel();
-            this.setupResearchResultsPanel();
+            this.setupGatherResultsPanel();
             this.setupInspectPanel();
+            this.setupSelectTargetPanel();
 
             //play info panel
             this.setupPlayerPanel();

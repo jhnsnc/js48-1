@@ -1,4 +1,39 @@
 (function() {
+    battleState.prototype.playerGatherResources = function(reactionId) {
+        var totalIngredients, criticallyLowIngredients;
+
+        totalIngredients = 0;
+        criticallyLowIngredients = 0;
+        _.forEach(INGREDIENTS_DATA, function(ingredientData, idx) {
+            totalIngredients += player.ingredientsCount[ingredientData.id];
+            if (player.ingredientsCount[ingredientData.id] < 4) {
+                criticallyLowIngredients += 1;
+            }
+        });
+
+
+        if (totalIngredients < 20 || criticallyLowIngredients > 4) {
+        } else if (totalIngredients > 50 || criticallyLowIngredients > 3) {
+        } else if (totalIngredients > 80 || criticallyLowIngredients > 2) {
+        } else {
+            //player has lots of ings. extremely rare chance to get some, but probably not
+            if (Math.random() < 0.01) { //success
+                return {
+                    ingredients: {},
+                    message: "You somehow manage to find more ingredients to stuff into your already overflowing bags."
+                };
+            } else { //fail
+                return {
+                    ingredients: {},
+                    message: "You\'ve got so many ingredients already. Aren\'t you itching to blow up those monsters?"
+                };
+            }
+        }
+
+        //return list of ingredients gathered and message for user
+        //TODO
+        return 
+    };
     battleState.prototype.useReaction = function(reactionId) {
         var self = this;
         var recipeData = _.findWhere(RECIPES_DATA,{id: reactionId});
@@ -14,77 +49,25 @@
         var amount;
         switch (recipeData.target) {
             case "enemy-single":
-                console.log("selected ability targets a single monster - user prompted to select");
-                //TODO: PLAYER NEEDS TO SPECIFY A TARGET
+                console.log("selected ability targets a single monster");
+                this.showSelectTargetDialog(recipeData.displayName, recipeData.descriptionText, function(monster) {
+                    self.monsterHandleSpell(monster, recipeData, damageRoll);
+                    self.takeMonsterTurn();
+                });
                 break;
             case "enemy-all":
                 console.log("selected ability targets all monsters");
-                if (recipeData.debuffMultiplier !== 0.0) { //debuff
-                    amount = Math.round(recipeData.debuffMultiplier * damageRoll);
-                    _.forEach(this.monsters, function(monster, idx) {
-                        if (recipeData.damageType === "physical" || recipeData.damageType === "hybrid") {
-                            console.log(" - monster ("+(idx+1)+") - armor debuffed by "+amount);
-                            monster.armorMod += amount;
-                        }
-                        if (recipeData.damageType === "magic" || recipeData.damageType === "hybrid") {
-                            console.log(" - monster ("+(idx+1)+") - resist debuffed by "+amount);
-                            monster.resistMod += amount;
-                        }
-                    });
-                }
-                //skip buff for enemies
-                //skip heal for enemies
-                if (recipeData.inflictTurnDebt !== 0) { //turnDebt
-                    amount = recipeData.inflictTurnDebt;
-                    _.forEach(this.monsters, function(monster, idx) {
-                        console.log(" - monster ("+(idx+1)+") - turn debt increased by "+amount);
-                        monster.turnDebt += amount;
-                    });
-                }
-                if (recipeData.damageMultiplier !== 0.0) { //damage
-                    amount = recipeData.damageMultiplier * damageRoll;
-                    _.forEach(this.monsters, function(monster, idx) {
-                        var reducedAmount = 0;
-
-                        if (recipeData.damageType === "physical" || recipeData.damageType === "hybrid") {
-                            reducedAmount += amount * (100/(100 + monster.armor + monster.armorMod));
-                        }
-                        if (recipeData.damageType === "magic" || recipeData.damageType === "hybrid") {
-                            reducedAmount += amount * (100/(100 + monster.resist + monster.resistMod));
-                        }
-                        reducedAmount = Math.round(reducedAmount);
-                        console.log(" - monster ("+(idx+1)+") - damage taken: "+reducedAmount);
-                        monster.currentHP -= reducedAmount;
-                    });
-                }
+                _.forEach(this.monsters, function(monster) {
+                    self.monsterHandleSpell(monster, recipeData, damageRoll);
+                });
+                self.takeMonsterTurn();
                 break;
             case "self":
                 console.log("selected ability targets the player");
-                //skip debuff for self
-                if (recipeData.buffMultiplier !== 0.0) { //buff
-                    if (recipeData.buffType === "physical" || recipeData.buffType === "hybrid") {
-                        amount = Math.ceil(recipeData.buffMultiplier * damageRoll);
-                        console.log(" - player - armor buffed by "+amount);
-                        player.armorMod += amount;
-                    }
-                    if (recipeData.buffType === "magic" || recipeData.buffType === "hybrid") {
-                        amount = Math.ceil(recipeData.buffMultiplier * damageRoll);
-                        console.log(" - player - resist buffed by "+amount);
-                        player.resistMod += amount;
-                    }
-                }
-                if (recipeData.healMultiplier !== 0.0) { //heal
-                    amount = Math.ceil(recipeData.healMultiplier * damageRoll);
-                    console.log(" - player - healed by "+amount);
-                    player.currentHP += amount;
-                    player.clampHP();
-                }
-                //skip turnDebt for self
-                //skip damage for self
+                player.handleSelfSpell(recipeData, damageRoll);
+                self.takeMonsterTurn();
                 break;
         }
-
-        this.takeMonsterTurn();
     };
     battleState.prototype.takeMonsterTurn = function() {
         console.log("monsters retaliate");

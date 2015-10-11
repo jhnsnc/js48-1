@@ -18,13 +18,13 @@ var player = (function() {
 
         //default values
         self.ingredientsCount = {};
-        var i, ingAlloc = 30;
+        var i, ingAlloc = 26;
         _.forEach(INGREDIENTS_DATA, function(ingredientData, idx) {
             self.ingredientsCount[ingredientData.id] = 0;
         });
         while(ingAlloc > 0) {
             var randType = INGREDIENTS_DATA[intBetween(0,INGREDIENTS_DATA.length)].id;
-            if (self.ingredientsCount[randType] < 8) { //8 = max starting ing count per type
+            if (self.ingredientsCount[randType] < 7) { //8 = max starting ing count per type
                 self.ingredientsCount[randType] += 1;
                 ingAlloc -= 1;
             }
@@ -83,6 +83,32 @@ var player = (function() {
         }
         self.currentHP = Math.floor(self.currentHP);
     }
+
+    self.handleSelfSpell = function(recipeData, damageRoll) {
+        //console.log("self targeted recipe: ",damageRoll);
+        //console.log(recipeData);
+        //skip debuff for self
+        if (recipeData.buffMultiplier !== 0.0) { //buff
+            if (recipeData.buffType === "physical" || recipeData.buffType === "hybrid") {
+                amount = Math.ceil(recipeData.buffMultiplier * damageRoll);
+                console.log(" - player - armor buffed by "+amount);
+                self.armorMod += amount;
+            }
+            if (recipeData.buffType === "magic" || recipeData.buffType === "hybrid") {
+                amount = Math.ceil(recipeData.buffMultiplier * damageRoll);
+                console.log(" - player - resist buffed by "+amount);
+                self.resistMod += amount;
+            }
+        }
+        if (recipeData.healMultiplier !== 0.0) { //heal
+            amount = Math.ceil(recipeData.healMultiplier * damageRoll);
+            console.log(" - player - healed by "+amount);
+            self.currentHP += amount;
+            self.clampHP();
+        }
+        //skip turnDebt for self
+        //skip damage for self
+    };
 
     init();
     return self;
