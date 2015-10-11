@@ -152,7 +152,6 @@
     };
     battleState.prototype.setupGatherResultsPanel = function() {
         var panelBack;
-        var txtLabel;
 
         this.gatherResultsPanel = this.game.add.group();
         this.gatherResultsPanel.position.setTo(140, 300);
@@ -160,12 +159,12 @@
         panelBack = this.gatherResultsPanel.create(0, 0, "ui-ActionPanel");
 
         //heading text
-        txtLabel = createGameText({
+        this.gatherLabel = createGameText({
             x: 30, y: 30,
             text: 'Gather results:',
-            fontSize: 35
+            fontSize: 30
         }, this);
-        this.gatherResultsPanel.add(txtLabel);
+        this.gatherResultsPanel.add(this.gatherLabel);
 
         //hide panel on click (and show actions panel)
         panelBack.inputEnabled = true;
@@ -174,6 +173,11 @@
             this.gatherResultsPanel.visible = false;
             this.actionsPanel.visible = true;
         }, this);
+
+        //add ingredients details subgroup
+        this.gatherResultsDetails = this.game.add.group();
+        this.gatherResultsDetails.position.setTo(30, 90);
+        this.gatherResultsPanel.add(this.gatherResultsDetails);
 
         //hidden by default
         this.gatherResultsPanel.visible = false;
@@ -261,5 +265,45 @@
         this.playerPanel.add(this.playerPanelDetails);
 
         this.updatePlayerPanelDetails();
+    };
+    battleState.prototype.beginVictorySequence = function() {
+        console.log("all enemies destroyed - VICTORY!");
+
+        var self = this;
+
+        //TODO: change this timeout to be on tweens complete
+        setTimeout(function() {
+            self.game.state.start("Victory");
+        }, 3000)
+
+        _.forEach(self.actionsPanel.children, function(element) {
+            if (element.events) {
+                element.events.onInputDown.removeAll();
+            }
+            if (element.input) {
+                element.input.useHandCursor = false;
+            }
+            element.inputEnabled = false;
+        });
+    };
+    battleState.prototype.beginGameOverSequence = function() {
+        console.log("the player died - DEFEAT");
+
+        var self = this;
+
+        //TODO: change this timeout to be on tweens complete
+        setTimeout(function() {
+            self.game.state.start("Defeat");
+        }, 3000);
+
+        _.forEach(self.actionsPanel.children, function(element) {
+            if (element.events) {
+                element.events.onInputDown.removeAll();
+            }
+            if (element.input) {
+                element.input.useHandCursor = false;
+            }
+            element.inputEnabled = false;
+        });
     };
 })();

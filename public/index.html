@@ -29,6 +29,8 @@
     <script type="text/javascript" src="js/states/battle-monsters.js"></script>
     <script type="text/javascript" src="js/states/battle-ui-setup.js"></script>
     <script type="text/javascript" src="js/states/battle-ui-interaction.js"></script>
+    <script type="text/javascript" src="js/states/victory.js"></script>
+    <script type="text/javascript" src="js/states/defeat.js"></script>
 </head>
 <body>
 
@@ -41,13 +43,16 @@
                 game.state.add("Preload", preloadState);
                 game.state.add("Title", titleState);
                 game.state.add("Battle", battleState);
+                game.state.add("Victory", victoryState);
+                game.state.add("Defeat", defeatState);
 
                 game.state.start("Boot");
             }
         })();
     </script>
 
-    <h1 style="font-family: 'Topaz'; position: fixed; z-index: -10; width: 100%; text-align:center; left: 0; top: 30%; color: red; font-size: 100px; text-shadow: 3px 3px 10px black;">HACK</h1> <!-- HACK: to make the webfont load -->
+    <h1 class="no-js-warning" style="font-family: 'Topaz';">Hey! You need to enable JavaScript in order to play this game.</h1>
+    <p class="no-js-warning" style="font-family: 'Topaz';">If you&rsquo;re still having trouble, you can <a href="mailto:jhnsn.c@gmail.com">send the developer a quick email</a>.</p>
 
 </body>
 </html>

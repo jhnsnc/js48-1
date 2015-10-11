@@ -157,16 +157,16 @@ var RECIPES_DATA = [
         target: "enemy-single",
         damageMultiplier: 0.0,
         damageType: "none",
-        debuffMultiplier: 0.1,
+        debuffMultiplier: 0.22,
         debuffType: "hybrid",
         buffMultiplier: 0.0,
         buffType: "none",
         healMultiplier: 0.0,
         inflictTurnDebt: 0,
         ingredientTypeA: "Oil",
-        ingredientCostA: 3,
+        ingredientCostA: 2,
         ingredientTypeB: "PixieDust",
-        ingredientCostB: 3
+        ingredientCostB: 2
     },//1
     {
         id: "Oil-Mud",
@@ -197,7 +197,7 @@ var RECIPES_DATA = [
         damageType: "none",
         debuffMultiplier: 0.0,
         debuffType: "none",
-        buffMultiplier: 0.12,
+        buffMultiplier: 0.15,
         buffType: "magic",
         healMultiplier: 1.5,
         inflictTurnDebt: 0,
@@ -235,14 +235,14 @@ var RECIPES_DATA = [
         damageType: "none",
         debuffMultiplier: 0.0,
         debuffType: "none",
-        buffMultiplier: 0.1,
+        buffMultiplier: 0.22,
         buffType: "hybrid",
         healMultiplier: 0.0,
         inflictTurnDebt: 0,
         ingredientTypeA: "Oil",
-        ingredientCostA: 3,
+        ingredientCostA: 2,
         ingredientTypeB: "Bone",
-        ingredientCostB: 3
+        ingredientCostB: 2
     },//5
     {
         id: "PixieDust-Mud",
@@ -252,7 +252,7 @@ var RECIPES_DATA = [
         target: "enemy-all",
         damageMultiplier: 1.05,
         damageType: "physical",
-        debuffMultiplier: 0.08,
+        debuffMultiplier: 0.12,
         debuffType: "physical",
         buffMultiplier: 0.0,
         buffType: "none",
@@ -311,7 +311,7 @@ var RECIPES_DATA = [
         damageType: "none",
         debuffMultiplier: 0.0,
         debuffType: "none",
-        buffMultiplier: 0.15,
+        buffMultiplier: 0.17,
         buffType: "physical",
         healMultiplier: 1.4,
         inflictTurnDebt: 0,
@@ -385,7 +385,7 @@ var RECIPES_DATA = [
         target: "enemy-all",
         damageMultiplier: 0.95,
         damageType: "magic",
-        debuffMultiplier: 0.09,
+        debuffMultiplier: 0.15,
         debuffType: "physical",
         buffMultiplier: 0.0,
         buffType: "none",
@@ -404,7 +404,7 @@ var RECIPES_DATA = [
         target: "enemy-single",
         damageMultiplier: 1.04,
         damageType: "physical",
-        debuffMultiplier: 0.1,
+        debuffMultiplier: 0.20,
         debuffType: "magic",
         buffMultiplier: 0.0,
         buffType: "none",
@@ -423,7 +423,7 @@ var RECIPES_DATA = [
         target: "enemy-single",
         damageMultiplier: 1.0,
         damageType: "magic",
-        debuffMultiplier: 0.09,
+        debuffMultiplier: 0.22,
         debuffType: "magic",
         buffMultiplier: 0.0,
         buffType: "none",
@@ -461,8 +461,8 @@ var GROUND_TILESETS = [
         name: "BurntGrass",
         location: "assets/tiles/ground_grass_burnt.png"
     },*/
-    {
+    /*{
         name: "Sand",
         location: "assets/tiles/ground_sand.png"
-    }
+    }*/
 ];

@@ -17,6 +17,8 @@ var battleState = function(game) {};
         //var ingredientsDetails;
 
         //var gatherResultsPanel;
+        //var gatherResultsDetails;
+        //var gatherLabel;
 
         //var inspectPanel;
         //var inspectMonsterDetails;

@@ -69,6 +69,7 @@
         //hp
         monsterData.maxHP = monsterData.hpBase + (monsterData.hpGrowth * level);
         monsterData.currentHP = monsterData.maxHP;
+        monsterData.isDead = false;
         //armor
         monsterData.armor = monsterData.armorBase + (monsterData.armorGrowth * level);
         monsterData.armorMod = 0;
@@ -105,6 +106,9 @@
         }
         if (recipeData.damageMultiplier !== 0.0) { //damage
             amount = recipeData.damageMultiplier * damageRoll;
+            if (recipeData.target === "enemy-all") { // AoE damage is 40% of base single-target damage
+                amount *= 0.4;
+            }
             var reducedAmount = 0;
 
             if (recipeData.damageType === "physical" || recipeData.damageType === "hybrid") {

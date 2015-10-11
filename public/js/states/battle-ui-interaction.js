@@ -2,6 +2,7 @@
     battleState.prototype.updatePlayerPanelDetails = function() {
         var text;
         var txtHP, txtLevel, txtArmor, txtResist;
+        var amount;
 
         //HP
         text = "HP: " + player.currentHP + "/" + player.maxHP;
@@ -21,10 +22,11 @@
 
         //armor
         text = "Armor: " + player.armor;
-        if (player.armorMod > 0) {
-            text += " (+" + Math.round(Math.abs(player.armorMod)) + ")";
-        } else if (player.armorMod < 0) {
-            text += " (-" + Math.round(Math.abs(player.armorMod)) + ")";
+        amount = Math.round(player.armorMod);
+        if (amount > 0) {
+            text += " (+" + amount + ")";
+        } else if (amount < 0) {
+            text += " (-" + Math.abs(amount) + ")";
         }
         txtArmor = createGameText({
             x: 0, y: 85,
@@ -34,10 +36,11 @@
 
         //resist
         text = "Resist: " + player.resist;
-        if (player.resistMod > 0) {
-            text += " (+" + Math.round(Math.abs(player.resistMod)) + ")";
-        } else if (player.resistMod < 0) {
-            text += " (-" + Math.round(Math.abs(player.resistMod)) + ")";
+        amount = Math.round(player.resistMod);
+        if (amount > 0) {
+            text += " (+" + amount + ")";
+        } else if (amount < 0) {
+            text += " (-" + Math.abs(amount) + ")";
         }
         txtResist = createGameText({
             x: 0, y: 120,
@@ -67,6 +70,29 @@
     };
     battleState.prototype.handleGather = function(evt) {
         console.log("Player chose \"Gather\" command");
+
+        this.gatherLabel.text = "Gather results:";
+
+        this.playerGatherResources(function handleResponse(numIngs, message) {
+            //allocate ings gathered to various types
+            var ingsAdded = {};
+            _.forEach(INGREDIENTS_DATA, function(ingredientData, idx) {
+                ingsAdded[ingredientData.id] = 0;
+            });
+            while(numIngs > 0) {
+                var randType = INGREDIENTS_DATA[intBetween(0,INGREDIENTS_DATA.length)].id;
+                ingsAdded[randType] += 1;
+                numIngs -= 1;
+            }
+
+            //add to player count
+            _.forEach(INGREDIENTS_DATA, function(ingredientData, idx) {
+                player.ingredientsCount[ingredientData.id] += ingsAdded[ingredientData.id];
+            });
+
+            //update display
+            this.updateGatherResultsPanel(ingsAdded, message);
+        });
         this.gatherResultsPanel.visible = true;
         this.actionsPanel.visible = false;
     };
@@ -75,6 +101,52 @@
         this.enableMonsterInspection();
         this.inspectPanel.visible = true;
         this.actionsPanel.visible = false;
+    };
+    battleState.prototype.updateGatherResultsPanel = function(ingsAdded, message) {
+        console.log("player gather results: ", message);
+        console.log(ingsAdded);
+
+        var txtFields = [];
+        var images = [];
+        var txtMessage;
+        var numIngs = INGREDIENTS_DATA.length;
+        var self = this;
+
+        //prep text fields and images
+        _.forEach(INGREDIENTS_DATA, function(ingredientData, idx) {
+            var textField, image;
+
+            textField = createGameText({
+                x: 200*Math.floor(idx%2) + 100, y: Math.floor(idx/2)*40 - 10,
+                text: 'x ' + ingsAdded[ingredientData.id],
+                fontSize: 30
+            }, self);
+            txtFields.push( textField );
+
+            image = self.game.add.sprite(200*Math.floor(idx%2) + 12, Math.floor(idx/2)*40 - 42, ingredientData.spriteName);
+            image.scale.setTo(2.0, 2.0);
+            images.push(image);
+        });
+
+        //add message
+        txtMessage = createGameText({
+            x: 0, y: 130,
+            text: message,
+            fontSize: 15
+        }, self);
+        txtMessage.wordWrap = true;
+        txtMessage.wordWrapWidth = 440;
+        txtFields.push( txtMessage );
+
+        //remove/add elements
+        this.gatherResultsDetails.removeAll();
+        _.forEach(txtFields, function(textField) {
+            self.gatherResultsDetails.add(textField);
+        });
+        _.forEach(images, function(image) {
+            self.gatherResultsDetails.add(image);
+        });
+        this.gatherResultsDetails.add(txtMessage);
     };
     battleState.prototype.showSelectTargetDialog = function(recipeName, recipeDescription, callback) {
         console.log("Showing player \"Select target\" dialog");
@@ -89,24 +161,26 @@
 
         //enable click events for all monsters
         _.forEach(self.monsters, function(monster) {
-            monster.sprite.inputEnabled = true;
-            monster.sprite.input.useHandCursor = true;
-            monster.sprite.events.onInputDown.add(function(target) {
-                //on click
-                var targetMonsterData = _.find(self.monsters, function test(monster) {
-                    return monster.sprite.z === target.z;
-                }, self);
+            if (!monster.isDead) {
+                monster.sprite.inputEnabled = true;
+                monster.sprite.input.useHandCursor = true;
+                monster.sprite.events.onInputDown.add(function(target) {
+                    //on click
+                    var targetMonsterData = _.find(self.monsters, function test(monster) {
+                        return monster.sprite.z === target.z;
+                    }, self);
 
-                //unbind click events
-                self.disableMonsterInteraction();
+                    //unbind click events
+                    self.disableMonsterInteraction();
 
-                //swap panel visibility
-                self.selectTargetPanel.visible = false;
-                self.actionsPanel.visible = true;
+                    //swap panel visibility
+                    self.selectTargetPanel.visible = false;
+                    self.actionsPanel.visible = true;
 
-                //invoke callback
-                callback.apply(self, [targetMonsterData]);
-            }, this);
+                    //invoke callback
+                    callback.apply(self, [targetMonsterData]);
+                }, this);
+            }
         });
     };
     battleState.prototype.updateRecipeData = function() {
@@ -266,13 +340,13 @@
             var textField, image;
 
             textField = createGameText({
-                x: 200*Math.floor(idx%2) + 100, y: Math.floor(idx/2)*60 + 10,
+                x: 200*Math.floor(idx%2) + 100, y: Math.floor(idx/2)*50 + 10,
                 text: 'x ' + player.ingredientsCount[ingredientData.id],
                 fontSize: 30
             }, self);
             txtFields.push( textField );
 
-            image = self.game.add.sprite(200*Math.floor(idx%2) + 12, Math.floor(idx/2)*60 - 22, ingredientData.spriteName);
+            image = self.game.add.sprite(200*Math.floor(idx%2) + 12, Math.floor(idx/2)*50 - 22, ingredientData.spriteName);
             image.scale.setTo(2.0, 2.0);
             images.push(image);
         });
@@ -294,23 +368,29 @@
 
         //enable click events for all monsters
         _.forEach(self.monsters, function(monster) {
-            monster.sprite.inputEnabled = true;
-            monster.sprite.input.useHandCursor = true;
-            monster.sprite.events.onInputDown.add(function(target) {
-                //on click
-                var targetMonsterData = _.find(self.monsters, function test(monster) {
-                    return monster.sprite.z === target.z;
+            if (!monster.isDead) {
+                monster.sprite.inputEnabled = true;
+                monster.sprite.input.useHandCursor = true;
+                monster.sprite.events.onInputDown.add(function(target) {
+                    //on click
+                    var targetMonsterData = _.find(self.monsters, function test(monster) {
+                        return monster.sprite.z === target.z;
+                    }, this);
+                    self.inspectMonster.apply(self, [targetMonsterData]);
                 }, this);
-                self.inspectMonster.apply(self, [targetMonsterData]);
-            }, this);
+            }
         });
     };
     battleState.prototype.disableMonsterInteraction = function() {
         //disable click events for all monsters
         var self = this;
         _.forEach(self.monsters, function(monster) {
-            monster.sprite.events.onInputDown.removeAll();
-            monster.sprite.input.useHandCursor = false;
+            if (monster.sprite.events) {
+                monster.sprite.events.onInputDown.removeAll();
+            }
+            if (monster.sprite.input) {
+                monster.sprite.input.useHandCursor = false;
+            }
             monster.sprite.inputEnabled = false;
         });
     };
@@ -321,6 +401,7 @@
             var monsterPortrait;
             var txtHP, txtArmor, txtResist, txtDamage, text;
             var txtDrops, dropPrimary, dropSecondary, dropBonus;
+            var amount;
 
             //create monster portrait
             monsterPortrait = this.inspectMonsterDetails.create(0, 10, targetMonsterData.spriteName);
@@ -334,10 +415,11 @@
             }, this);
 
             text = 'Armor: ' + targetMonsterData.armor;
-            if (targetMonsterData.armorMod > 0) {
-                text += ' (+'+Math.round(targetMonsterData.armorMod)+')';
-            } else if (targetMonsterData.armorMod < 0) {
-                text += ' (-'+Math.round(Math.abs(targetMonsterData.armorMod))+')';
+            amount = Math.round(targetMonsterData.armorMod);
+            if (amount > 0) {
+                text += ' (+' + amount + ')';
+            } else if (amount < 0) {
+                text += ' (-' + Math.abs(amount) + ')';
             }
             txtArmor = createGameText({
                 x: 110, y: 40,
@@ -346,10 +428,11 @@
             }, this);
 
             text = 'Resist: ' + targetMonsterData.resist;
-            if (targetMonsterData.resistMod > 0) {
-                text += ' (+'+Math.round(targetMonsterData.resistMod)+')';
-            } else if (targetMonsterData.resistMod < 0) {
-                text += ' (-'+Math.round(Math.abs(targetMonsterData.resistMod))+')';
+            amount = Math.round(targetMonsterData.resistMod);
+            if (amount > 0) {
+                text += ' (+' + amount + ')';
+            } else if (amount < 0) {
+                text += ' (-' + Math.abs(amount) + ')';
             }
             txtResist = createGameText({
                 x: 110, y: 80,

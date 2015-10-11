@@ -12,7 +12,7 @@ var player = (function() {
     self.resist;
     self.resistMod;
 
-    function init() {
+    self.init = function() {
         //try to load from local storage
         //TODO
 
@@ -32,7 +32,7 @@ var player = (function() {
 
         //base stats
         self.level = 0;
-        self.maxHP = 20;
+        self.maxHP = 30;
         self.armor = 3;
         self.resist = 5;
 
@@ -46,25 +46,29 @@ var player = (function() {
     }
 
     self.levelUp = function() {
+        console.log("level up");
+
         self.level += 1;
 
-        var statAlloc = 8; //8 points distributed between armor, resist, and HP (1 point = 2 HP, or 1 armor/resist)
+        var statAlloc = 10; //10 points distributed between armor, resist, and HP (1 point = 2 HP, or 1 armor/resist)
         while(statAlloc > 0) {
             switch(intBetween(0,3)) {
                 case 0:
-                    self.maxHP + 2;
+                    self.maxHP += 2;
                     statAlloc -= 1;
                     break;
                 case 1:
-                    self.armor + 1;
+                    self.armor += 1;
                     statAlloc -= 1;
                     break;
                 case 2:
-                    self.resist + 1;
+                    self.resist += 1;
                     statAlloc -= 1;
                     break;
             }
         }
+
+        self.currentHP = self.maxHP;
     }
 
     self.save = function() {
@@ -78,8 +82,6 @@ var player = (function() {
     self.clampHP = function() {
         if (self.currentHP > self.maxHP) {
             self.currentHP = self.maxHP;
-        } else if (self.currentHP < 0) {
-            self.currentHP = 0;
         }
         self.currentHP = Math.floor(self.currentHP);
     }
@@ -110,6 +112,6 @@ var player = (function() {
         //skip damage for self
     };
 
-    init();
+    self.init();
     return self;
 }());
