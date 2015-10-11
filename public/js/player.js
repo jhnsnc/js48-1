@@ -86,9 +86,12 @@ var player = (function() {
         self.currentHP = Math.floor(self.currentHP);
     }
 
-    self.handleSelfSpell = function(recipeData, damageRoll) {
+    self.handleSelfSpell = function(recipeData, damageRoll, battle) {
         //console.log("self targeted recipe: ",damageRoll);
         //console.log(recipeData);
+
+        var buffIndicator, healIndicator;
+
         //skip debuff for self
         if (recipeData.buffMultiplier !== 0.0) { //buff
             if (recipeData.buffType === "physical" || recipeData.buffType === "hybrid") {
@@ -101,12 +104,47 @@ var player = (function() {
                 console.log(" - player - resist buffed by "+amount);
                 self.resistMod += amount;
             }
+
+            //visually show buff
+            if (amount > 0) {
+                buffIndicator = createGameText({
+                    x: 30, y: 10,
+                    text: amount,
+                    fontSize: 40,
+                    fill: '#751ac1',
+                    strokeThickness: 8
+                }, battle);
+                buffIndicator.anchor.setTo(0.5, 0.5);
+                battle.playerPanel.addChild(buffIndicator);
+                battle.game.add.tween(buffIndicator)
+                    .to({y: -30, alpha: 0.0}, 2500, Phaser.Easing.Sinusoidal.Out, true)
+                    .onComplete.add(function() {
+                        buffIndicator.parent.removeChild(buffIndicator);
+                    }, battle);
+            }
         }
         if (recipeData.healMultiplier !== 0.0) { //heal
             amount = Math.ceil(recipeData.healMultiplier * damageRoll);
             console.log(" - player - healed by "+amount);
             self.currentHP += amount;
-            self.clampHP();
+
+            //visually show heal
+            if (amount > 0) {
+                healIndicator = createGameText({
+                    x: 80, y: 40,
+                    text: amount,
+                    fontSize: 40,
+                    fill: '#11c311',
+                    strokeThickness: 8
+                }, battle);
+                healIndicator.anchor.setTo(0.5, 0.5);
+                battle.playerPanel.addChild(healIndicator);
+                battle.game.add.tween(healIndicator)
+                    .to({y: 0, alpha: 0.0}, 2500, Phaser.Easing.Sinusoidal.Out, true)
+                    .onComplete.add(function() {
+                        healIndicator.parent.removeChild(healIndicator);
+                    }, battle);
+            }
         }
         //skip turnDebt for self
         //skip damage for self

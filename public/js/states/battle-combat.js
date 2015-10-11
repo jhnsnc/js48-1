@@ -87,7 +87,7 @@
                 break;
             case "self":
                 console.log("selected ability targets the player");
-                player.handleSelfSpell(recipeData, damageRoll);
+                player.handleSelfSpell(recipeData, damageRoll, self);
                 self.takeMonsterTurn();
                 break;
         }
@@ -95,8 +95,11 @@
     battleState.prototype.takeMonsterTurn = function() {
         console.log("monsters retaliate");
 
+        var self = this;
+
         _.forEach(this.monsters, function(monster, idx) {
             var damageRoll, reducedAmount;
+            var damageIndicator, x, y;
 
             //make sure the monster is still alive
             if (!monster.isDead) {
@@ -118,6 +121,33 @@
                         console.log(" - player - damage taken (magic): "+reducedAmount);
                         player.currentHP -= reducedAmount;
                     }
+
+                    //visually show heal
+                    if (reducedAmount > 0) {
+                        console.log(idx);
+                        x = 130 + idx*50;
+                        if (idx === 0) {
+                            y = 70;
+                        } else if (idx === 1 || idx === 3) {
+                            y = 40;
+                        } else {
+                            y = 10;
+                        }
+                        damageIndicator = createGameText({
+                            x: x, y: y,
+                            text: reducedAmount,
+                            fontSize: 40,
+                            fill: '#e50525',
+                            strokeThickness: 8
+                        }, self);
+                        damageIndicator.anchor.setTo(0.5, 0.5);
+                        self.playerPanel.addChild(damageIndicator);
+                        self.game.add.tween(damageIndicator)
+                            .to({y: y-30, alpha: 0.0}, 2500, Phaser.Easing.Sinusoidal.Out, true)
+                            .onComplete.add(function() {
+                                damageIndicator.parent.removeChild(damageIndicator);
+                            }, self);
+                    }
                 }
             }
         });
@@ -134,8 +164,8 @@
 
         //normalize monster armor and resist debuffs
         _.forEach(this.monsters, function(monster, idx) {
-            monster.armorMod *= 0.6;
-            monster.resistMod *= 0.6;
+            monster.armorMod *= 0.7;
+            monster.resistMod *= 0.7;
         });
 
         //check for monster deaths
@@ -167,10 +197,10 @@
                 //standard loot
                 numIngs = intBetween(5, 11); //5-10
                 while(numIngs > 0) {
-                    if (Math.random() < 0.7) { //70% chance to drop primary
+                    if (Math.random() < 0.6) { //60% chance to drop primary
                         loot[monster.dropPrimary] += 1;
                         numIngs -= 1;
-                    } else { //30% chance to drop secondary
+                    } else { //40% chance to drop secondary
                         loot[monster.dropSecondary] += 1;
                         numIngs -= 1;
                     }
@@ -197,16 +227,17 @@
         }
 
         //normalize player armor and resist buffs
-        player.armorMod *= 0.6;
-        player.resistMod *= 0.6;
-
-        this.updatePlayerPanelDetails();
+        player.armorMod *= 0.7;
+        player.resistMod *= 0.7;
 
         //check for player death (loss condition)
+        player.clampHP();
         if (player.currentHP < 1) {
             //player dieded
             this.beginGameOverSequence();
         }
+
+        this.updatePlayerPanelDetails();
 
         //check for all monsters dead (victory condition)
         allDead = true;

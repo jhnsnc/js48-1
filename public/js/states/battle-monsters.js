@@ -85,6 +85,7 @@
         //console.log("monster targeted recipe: ",damageRoll);
         //console.log(recipeData);
         var amount;
+        var debuffIndicator, slowIndicator, damageIndicator;
 
         if (recipeData.debuffMultiplier !== 0.0) { //debuff
             amount = Math.round(recipeData.debuffMultiplier * damageRoll);
@@ -96,6 +97,24 @@
                 console.log(" - monster ("+monster.type+") - resist debuffed by "+amount);
                 monster.resistMod -= amount;
             }
+
+            //visually show debuff
+            if (amount > 0) {
+                debuffIndicator = createGameText({
+                    x: -15, y: 0,
+                    text: amount,
+                    fontSize: 10,
+                    fill: '#751ac1',
+                    strokeThickness: 3
+                }, this);
+                debuffIndicator.anchor.setTo(0.5, 0.5);
+                monster.sprite.addChild(debuffIndicator);
+                this.game.add.tween(debuffIndicator)
+                    .to({y: -15, alpha: 0.0}, 2500, Phaser.Easing.Sinusoidal.Out, true)
+                    .onComplete.add(function() {
+                        debuffIndicator.parent.removeChild(debuffIndicator);
+                    }, this);
+            }
         }
         //skip buff for enemies
         //skip heal for enemies
@@ -103,6 +122,24 @@
             amount = recipeData.inflictTurnDebt;
             console.log(" - monster ("+monster.type+") - turn debt increased by "+amount);
             monster.turnDebt += amount;
+
+            //visually show slow
+            if (amount > 0) {
+                slowIndicator = createGameText({
+                    x: -5, y: 5,
+                    text: 'slow',
+                    fontSize: 10,
+                    fill: '#e0a609',
+                    strokeThickness: 3
+                }, this);
+                slowIndicator.anchor.setTo(0.5, 0.5);
+                monster.sprite.addChild(slowIndicator);
+                this.game.add.tween(slowIndicator)
+                    .to({y: -10, alpha: 0.0}, 2500, Phaser.Easing.Sinusoidal.Out, true)
+                    .onComplete.add(function() {
+                        slowIndicator.parent.removeChild(slowIndicator);
+                    }, this);
+            }
         }
         if (recipeData.damageMultiplier !== 0.0) { //damage
             amount = recipeData.damageMultiplier * damageRoll;
@@ -120,6 +157,24 @@
             reducedAmount = Math.round(reducedAmount);
             console.log(" - monster ("+monster.type+") - damage taken: "+reducedAmount);
             monster.currentHP -= reducedAmount;
+
+            //visually show damage
+            if (amount > 0) {
+                damageIndicator = createGameText({
+                    x: 5, y: 10,
+                    text: Math.floor(reducedAmount),
+                    fontSize: 10,
+                    fill: '#e50525',
+                    strokeThickness: 3
+                }, this);
+                damageIndicator.anchor.setTo(0.5, 0.5);
+                monster.sprite.addChild(damageIndicator);
+                this.game.add.tween(damageIndicator)
+                    .to({y: -5, alpha: 0.0}, 2500, Phaser.Easing.Sinusoidal.Out, true)
+                    .onComplete.add(function() {
+                        damageIndicator.parent.removeChild(damageIndicator);
+                    }, this);
+            }
         }
     };
 })();
