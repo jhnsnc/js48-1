@@ -441,8 +441,28 @@ var GROUND_TILESETS = [
         name: "CrustedGround",
         location: "assets/tiles/ground_crusted.png"
     },*/
+    /*{
+        name: "LightCrustedGround",
+        location: "assets/tiles/ground_crusted_light.png"
+    },*/
     {
         name: "BrownDirt",
         location: "assets/tiles/ground_dirt_brown.png"
+    },
+    {
+        name: "DarkDirt",
+        location: "assets/tiles/ground_dirt_dark.png"
+    },
+    {
+        name: "Grass",
+        location: "assets/tiles/ground_grass.png"
+    },
+    /*{
+        name: "BurntGrass",
+        location: "assets/tiles/ground_grass_burnt.png"
+    },*/
+    {
+        name: "Sand",
+        location: "assets/tiles/ground_sand.png"
     }
 ];
